@@ -22,13 +22,19 @@ namespace MantenimientoPersonas.Controllers
             return View();
         }
         [HttpGet]
+        public JsonResult ObtenerPersonaPorId(int id)
+        {
+            var persona = _context.Personas.Find(id);
+            return Json(persona);
+        }
+        [HttpGet]
         public JsonResult ObtenerPersonas()
         {
             var personas = _context.Personas.Where(p => p.estado_activo == true).ToList();
             return Json(personas);
         }
         [HttpPost]
-        public JsonResult agregarPersona(PersonaModel persona)
+        public JsonResult AgregarPersona(PersonaModel persona)
         {
             if (ModelState.IsValid)
             {
@@ -41,6 +47,37 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = 0 });
             }
         }
+        [HttpPut]
+        public JsonResult ActualizarPersona(PersonaModel persona)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Personas.Update(persona);
+                _context.SaveChanges();
+                return Json(new { success = true, message = 1 });
+            }
+            else
+            {
+                return Json(new { success = true, message = 0 });
+            }
+        }
+
+        [HttpDelete]
+        public JsonResult EliminarPersona(int id)
+        {
+            var persona = _context.Personas.Find(id);
+            if (persona != null)
+            {
+                persona.estado_activo = false;
+                _context.SaveChanges();
+                return Json(new { success = true, message = 1 });
+            }
+            else
+            {
+                return Json(new { success = true, message = 0 });
+            }
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
