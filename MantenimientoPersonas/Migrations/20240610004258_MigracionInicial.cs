@@ -6,6 +6,7 @@ namespace MantenimientoPersonas.Migrations
 {
     public partial class MigracionInicial : Migration
     {
+        
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(

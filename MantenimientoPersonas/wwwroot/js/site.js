@@ -1,4 +1,11 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
+function showHideModal(element, action) {
+    const $targetEl = document.getElementById(element);
+    const modal = new Modal($targetEl);
+    if (action == 'show') {
+        modal.show();
+    } else if (action == "hide") {
+        modal.hide();
+    }
+}
 
-// Write your JavaScript code.

@@ -1,0 +1,234 @@
+﻿@model MantenimientoPersonas.Models.PersonaRelacionadaModel
+
+<center>
+    <section class="max-w-screen bg-gray-100 dark:bg-gray-900 p-3 sm:p-5 antialiased">
+        <div class="mx-auto max-w-5xl px-4 lg:px-14">
+        <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
+                    <div class="h-auto max-w-lg ms-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+                        <button id="btnagregarpr" type="button" onclick="agregarPersonaRelacionada();" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+                        </svg>
+                        Agregar persona relacionada
+                    </button>
+                </div>
+            </div>
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-center text-gray-900 uppercase bg-blue-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" class="px-4 py-4">NÚMERO DE DOCUMENTO</th>
+                            <th scope="col" class="px-4 py-3">PRIMER NOMBRE</th>
+                            <th scope="col" class="px-4 py-3">SEGUNDO NOMBRE</th>
+                            <th scope="col" class="px-4 py-3">PRIMER APELLIDO</th>
+                            <th scope="col" class="px-4 py-3">SEGUNDO APELLIDO</th>
+                            <th scope="col" class="px-4 py-3">FECHA NACIMIENTO</th>
+                            <th scope="col" class="px-4 py-3">ROLES</th>
+                            <th scope="col" class="px-4 py-3">CORREO ELECTRÓNICO</th>
+                            <th scope="col" class="px-4 py-3">TELÉFONO</th>
+                            <th scope="col" class="px-4 py-3">TIPO PAGO</th>
+                            <th scope="col" class="px-4 py-3">NÚMERO CUENTA</th>
+                            <th scope="col" class="px-4 py-3">ENTIDAD BANCARIA</th>
+                            <th scope="col" class="px-4 py-3">PAIS</th>
+                            <th scope="col" class="px-4 py-3">PROVINCIA</th>
+                            <th scope="col" class="px-4 py-3">CIUDAD</th>
+                            <th scope="col" class=" px-4 py-3">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblpersonasrbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </section>
+<!-- Modal Principal PR-->
+    <div id="modalprincipalpr" data-modal-backdrop="static" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-2xl max-h-full">
+            <!-- Modal Contenido -->
+            <div class="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                    <h3 id="lblmodalprincipalpr" class="text-lg font-semibold text-gray-900 dark:text-white">Agregar nueva persona relacionada</h3>
+                    <button id="btncerrarmodalprincipalpr" type="button" onclick="showHideModal('modalprincipalpr', 'hide');" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
+                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="sr-only">Cerrar</span>
+                    </button>
+                </div>
+                <!-- Modal Cuerpo -->
+                <form id="cuerpomodalprincipalpr">
+                    <div class="grid gap-4 mb-4 sm:grid-cols-2">
+                        <div class="col-span-1" >
+                            <label for="cbtipodocumentopr" class="col-span-1 block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de documento</label>
+                            <select id="cbtipodocumentopr" name="cbtipodocumentopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <option value="CÉDULA">CÉDULA</option>
+                                <option value="PASAPORTE">PASAPORTE</option> 
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtnumerodocumentopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Número de documento</label>
+                            <input type="text" name="txtnumerodocumentopr" id="txtnumerodocumentopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Número de documento" required>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtprimernombrepr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Primer nombre</label>
+                            <input type="text" name="txtprimernombrepr" id="txtprimernombrepr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Primer nombre" required>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtsegundonombrepr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Segundo nombre</label>
+                            <input type="text" name="txtsegundonombrepr" id="txtsegundonombrepr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Segundo nombre">
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtprimerapellidopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Primer apellido</label>
+                            <input type="text" name="txtprimerapellidopr" id="txtprimerapellidopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Primer apellido" required>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtsegundoapellidopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Segundo apellido</label>
+                            <input type="text" name="txtsegundoapellidopr" id="txtsegundoapellidopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Segundo apellido">
+                        </div>
+
+                        <input type="hidden" name="txtpersonarid" id="txtpersonarid">
+                        <div class ="col-span-1">
+                            <label for="dpfechanacimientopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha de nacimiento</label>
+                            <div class='relative max-w-sm'>
+                                <div class='absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none'><svg class='w-4 h-4 text-gray-500 dark:text-gray-400' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 20 20'><path d='M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z' /></svg></div>
+                                <input id="dpfechanacimientopr" name="dpfechanacimientopr" datepicker datepicker-format="dd/mm/yyyy" datepicker-title="Elegir fecha de nacimiento" type="text" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Elegir fecha" required>
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Roles</h3>
+                            <ul id="listaRoles" class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            
+                            </ul>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtemailpr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Correo Electrónico</label>
+                            <input type="email" id="txtemailpr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"/>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="cbtipotelefonopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de teléfono</label>
+                            <select id="cbtipotelefonopr" name="cbtipotelefonopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <option value="TELÉFONO CELULAR">TELÉFONO CELULAR</option>
+                                <option value="TELÉFONO FIJO">TELÉFONO FIJO</option>
+                            </select>
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txttelefonopr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Número de teléfono</label>
+                            <input type="tel" name="txttelefonopr" id="txttelefonopr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="(809) 123-4567" required />
+                        </div>
+                        <div class="col-span-1">
+                            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Tipo de pago</h3>
+                            <div id="listatipopago" class="bg-white rounded-lg shadow w-60 dark:bg-gray-700">
+                                <div class="p-3">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                            </svg>
+                                        </div>
+                                        <input type="text" id="txtbuscartipopago" onkeyup="filtrarlista('txtbuscartipopago','ultipopago');" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Buscar tipo de pago">
+                                    </div>
+                                </div>
+                                <ul id="ultipopago" class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200">
+                                    <li>
+                                        <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <input id="rbtncorretaje" type="radio" value="CORRETAJE" name="rbtntipopago" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                                            <label for="rbtncorretaje" class="text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Corretaje </label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <input id="rbtncheque" type="radio" value="CHEQUE" name="rbtntipopago" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                                            <label for="rbtncheque" class="text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Cheque</label>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <input id="rbtndesembolso" type="radio" value="DESEMBOLSO" name="rbtntipopago" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
+                                            <label for="rbtndesembolso" class="text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Desembolso</label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                        <div class="col-span-1">
+                            <label for="txtnumerocuentapr" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Número de cuenta</label>
+                            <input type="text" name="txtnumerocuentapr" id="txtnumerocuentapr" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="" />
+                        </div>
+                        <div class="col-span-1">
+                            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Entidad Bancaria</h3>
+                            <div id="listaentidadbancaria" class="bg-white rounded-lg shadow w-60 dark:bg-gray-700">
+                                <div class="p-3">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                            </svg>
+                                        </div>
+                                        <input type="text" id="txtbuscarentidadbancaria" onkeyup="filtrarlista('txtbuscarentidadbancaria','ulentidadbancaria');" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Buscar entidad bancaria">
+                                    </div>
+                                </div>
+                                <ul id="ulentidadbancaria" class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200">
+
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <div class="col-span-1">
+                            <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">Dirección</h3>
+                            <ul>
+                                <li>
+
+                                    <select id="cbpais" style="width: 100%;" class="operator text-left "></select>
+                                    <h3 class="mb-5 text-gray-900 dark:text-white">Pais</h3>
+
+                                </li>
+
+                                <li>
+
+                                    <select id="cbprovincia" style="width: 100%;" class="operator text-left"></select>
+                                    <h3 class="mb-5 text-gray-900 dark:text-white">Provincia</h3>
+
+                                </li>
+
+
+                                <li>
+
+                                    <select id="cbciudad" name="cbciudad" style="width: 100%;" class="operator text-left" required></select>
+                                    <h3 class="mb-5 text-gray-900 dark:text-white">Ciudad</h3>
+
+                                </li>
+                            </ul>
+
+
+                        </div>
+                        <div class="col-span-1">
+                            <br />    
+                        </div>
+                        <div class="col-span-1">
+                            <button id="btncancelarpr" onclick="showHideModal('modalprincipalpr', 'hide');" type="button" class="text-white bg-gray-600 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                                <svg class="w-6 h-6 text-white-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12l4-4m-4 4 4 4" />
+                                </svg>
+                                Cancelar
+                            </button>
+                        </div>
+                        <div class="col-span-1">
+                            <button id="btnguardarpr" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+                                    <path fill-rule="evenodd" d="M9 7V2.221a2 2 0 0 0-.5.365L4.586 6.5a2 2 0 0 0-.365.5H9Zm2 0V2h7a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5h7.586l-.293.293a1 1 0 0 0 1.414 1.414l2-2a1 1 0 0 0 0-1.414l-2-2a1 1 0 0 0-1.414 1.414l.293.293H4V9h5a2 2 0 0 0 2-2Z" clip-rule="evenodd" />
+                                </svg>
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</center>
+<script src="~/js/personarelacionada.js" asp-append-version="true"></script>

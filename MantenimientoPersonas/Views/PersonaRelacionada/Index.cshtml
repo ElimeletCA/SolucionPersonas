@@ -1,0 +1,13 @@
+﻿@model MantenimientoPersonas.Models.PersonaRelacionadaModel
+@{
+    ViewData["Title"] = "Personas Relacionadas";
+    ViewData["TitleView"] = "Mantenimiento de personas relacionadas";
+}
+<div id="partialBody">
+</div>
+@section Scripts {
+    <script>
+        $("#partialBody").load("/PersonaRelacionada/PersonasRelacionadasPartial");
+    </script>
+}
+

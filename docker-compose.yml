@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  mantenimientopersonas:
+    image: ${DOCKER_REGISTRY-}mantenimientopersonas
+    build:
+      context: .
+      dockerfile: MantenimientoPersonas/Dockerfile

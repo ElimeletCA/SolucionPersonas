@@ -42,5 +42,8 @@ namespace MantenimientoPersonas.Models
         public string genero { get; set; } = string.Empty;
         [Required]
         public bool estado_activo { get; set; }
+        public ICollection<PersonaRelacionadaModel>? personas_relacionadas { get; set; }
+        [NotMapped]
+        public int[]? pr_id { get; set; }
     }
 }

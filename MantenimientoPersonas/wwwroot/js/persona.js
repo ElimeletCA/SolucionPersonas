@@ -1,6 +1,7 @@
 ﻿$(document).ready(function () {
     obtenerPersonas();
-    const cargandobtn = document.getElementById('cargandobtn');
+    cargarListaPersonasRelacionadas();
+
     $('head').append('<style>.error-text { display: none; }</style>');
     $('#cuerpoModalPrincipal').on('keypress', function (event) {
         if (event.keyCode === 13) {
@@ -101,7 +102,8 @@
 
 });
 function obtenerPersonas() {
-    cargandobtn.click();
+    showHideModal('cargando-modal', 'show');
+
     $.ajax({
         url: '/Persona/ObtenerPersonas',
         type: 'GET',
@@ -152,17 +154,35 @@ function obtenerPersonas() {
         error: function () {
         }
     });
-    cargandobtn.click();
+    showHideModal('cargando-modal', 'hide');
 }
 function agregarPersona() {
     $('#lblmodalprincipal').text('Agregar nueva persona');
     limpiarModal();
+    showHideModal('modalprincipal', 'show');
+
+
+
+}
+function obtenerPersonasReSeleccionadas() {
+    var PersonasReSeleccionadas = [];
+    $('input[name="personasreseleccionadas[]"]:checked').each(function () {
+        PersonasReSeleccionadas.push($(this).val());
+    });
+    return PersonasReSeleccionadas;
+}
+function marcarPersonasReSeleccionadas(prids) {
+    $('input[name="personasreseleccionadas[]"]').prop('checked', false);
+
+    prids.forEach(function (id) {
+        $('input[name="personasreseleccionadas[]"][value="' + id + '"]').prop('checked', true);
+    });
 }
 function guardarPersona() {
     if ($('#txtpersonaid').val() == '' || $('#txtpersonaid').val() == null) {
         advertenciaGuardar().then((confirmado) => {
             if (confirmado) {
-                cargandobtn.click();
+                showHideModal('cargando-modal', 'show');
                 //Agregar nueva persona
                 var persona = new Object();
                 persona.tipo_documento = $('#cbtipodocumento').val();
@@ -175,25 +195,41 @@ function guardarPersona() {
                 persona.numero_telefono = $('#txttelefono').val();
                 persona.mayoria_edad = $('#ckmayoriaedad').prop('checked');
                 persona.genero = $("input[name=rbtngenero]:checked").val();
-                persona.estado_activo = true;
+                persona.pr_id = obtenerPersonasReSeleccionadas();
 
+                persona.estado_activo = true;
                 $.ajax({
-                    url: '/Persona/AgregarPersona',
-                    type: 'POST',
-                    data: persona,
+                    url: '/Persona/ObtenerPersonaPorNumeroDocumento?ndocumento=' + persona.numero_documento,
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: 'application/json;charset=utf-8',
                     success: function (response) {
                         if (response.message == 1) {
-                            cargandobtn.click();
-                            mostrarModalOperacion('exito');
+                            showHideModal('cargando-modal', 'hide');
+
+                            mostrarModalOperacion('advertencia-modal');
+
                         } else {
-                            cargandobtn.click();
-                            mostrarModalOperacion('error');
+                            $.ajax({
+                                url: '/Persona/AgregarPersona',
+                                type: 'POST',
+                                data: persona,
+                                success: function (response) {
+                                    if (response.message == 1) {
+                                        showHideModal('cargando-modal', 'hide');
+                                        mostrarModalOperacion('exito-modal');
+                                    } else {
+                                        showHideModal('cargando-modal', 'hide');
+                                        mostrarModalOperacion('error-modal');
+                                    }
+                                    obtenerPersonas();
+                                    limpiarModal();
+                                    showHideModal('modalprincipal', 'hide');
+                                },
+                                error: function () {
+                                }
+                            });
                         }
-                        obtenerPersonas();
-                        limpiarModal();
-                        $('#btncerrarmodalprincipal').trigger('click');
-                    },
-                    error: function () {
                     }
                 });
             }
@@ -202,7 +238,7 @@ function guardarPersona() {
     } else {
         advertenciaEditar().then((confirmado) => {
             if (confirmado) {
-                cargandobtn.click();
+                showHideModal('cargando-modal', 'show');
                 //Actualizar datos de persona
                 var persona = new Object();
                 persona.persona_id = $('#txtpersonaid').val();
@@ -216,6 +252,7 @@ function guardarPersona() {
                 persona.numero_telefono = $('#txttelefono').val();
                 persona.mayoria_edad = $('#ckmayoriaedad').prop('checked');
                 persona.genero = $("input[name=rbtngenero]:checked").val();
+                persona.pr_id = obtenerPersonasReSeleccionadas();
                 persona.estado_activo = true;
 
                 $.ajax({
@@ -224,19 +261,20 @@ function guardarPersona() {
                     data: persona,
                     success: function (response) {
                         if (response.message == 1) {
-                            cargandobtn.click();
-                            mostrarModalOperacion('exito');
+                            showHideModal('cargando-modal', 'hide');
+                            mostrarModalOperacion('exito-modal');
                         } else {
-                            cargandobtn.click();
-                            mostrarModalOperacion('error');
+                            showHideModal('cargando-modal', 'hide');
+                            mostrarModalOperacion('error-modal');
                         }
                         obtenerPersonas();
                         limpiarModal();
-                        $('#btncerrarmodalprincipal').trigger('click');
+
+                        showHideModal('modalprincipal', 'hide');
                     },
                     error: function () {
-                        cargandobtn.click();
-                        errorbtn.click();
+                        showHideModal('cargando-modal', 'hide');
+                        showHideModal('error-modal', 'show');
                     }
                 });
             }
@@ -248,9 +286,11 @@ function guardarPersona() {
 function advertenciaGuardar() {
     //Confirmacion de guardado espera que el usuario confirme o cancele
     return new Promise((resolve) => {
-        $('#btnguardadomodal').trigger('click');
+        showHideModal('guardadomodal', 'show');
         $('#btnconfirmacionguardadomodal').one('click', function () {
             resolve(true);
+            showHideModal('guardadomodal', 'hide');
+
         });
         $('#btncancelarguardadomodal').one('click', function () {
             resolve(false);
@@ -263,9 +303,11 @@ function advertenciaGuardar() {
 function advertenciaEditar() {
     //Confirmacion de edicion espera que el usuario confirme o cancele
     return new Promise((resolve) => {
-        $('#btnedicionmodal').trigger('click');
+        showHideModal('edicionmodal', 'show');
         $('#btnconfirmacionedicionmodal').one('click', function () {
             resolve(true);
+            showHideModal('edicionmodal', 'hide');
+
         });
         $('#btncancelaredicionmodal').one('click', function () {
             resolve(false);
@@ -278,7 +320,7 @@ function advertenciaEditar() {
 
 function editarPersona(id) {
     //Colocar los datos de la persona en el modal
-    cargandobtn.click();
+    showHideModal('cargando-modal', 'show');
     $.ajax({
         url: '/Persona/ObtenerPersonaPorId?id=' + id,
         type: 'GET',
@@ -289,7 +331,7 @@ function editarPersona(id) {
 
             } else {
                 limpiarModal();
-                $('#btncerrarmodalprincipal').trigger('click');
+                showHideModal('modalprincipal', 'show');
                 $('#lblmodalprincipal').text('Editar persona');
                 $('#txtpersonaid').val(persona.persona_id);
                 $('#cbtipodocumento').val(persona.tipo_documento);
@@ -302,18 +344,20 @@ function editarPersona(id) {
                 $('#txttelefono').val(persona.numero_telefono);
                 $('#ckmayoriaedad').prop('checked', persona.mayoria_edad);
                 $("input[name=rbtngenero][value='" + persona.genero + "']").prop('checked', true);
+                marcarPersonasReSeleccionadas(persona.pr_id);
+
             }
         },
         error: function () {
 
         }
     });
-    cargandobtn.click();
+    showHideModal('cargando-modal', 'hide');
 }
 function eliminarPersona(id, nombreCompleto) {
     advertenciaEliminar(nombreCompleto).then((confirmado) => {
         if (confirmado) {
-            cargandobtn.click();
+            showHideModal('cargando-modal', 'show');
             $.ajax({
                 url: '/Persona/EliminarPersona?id=' + id,
                 type: 'DELETE',
@@ -321,11 +365,11 @@ function eliminarPersona(id, nombreCompleto) {
                 contentType: 'application/json;charset=utf-8',
                 success: function (response) {
                     if (response.message == 1) {
-                        cargandobtn.click();
-                        mostrarModalOperacion('exito');
+                        showHideModal('cargando-modal', 'hide');
+                        mostrarModalOperacion('exito-modal');
                     } else {
-                        cargandobtn.click();
-                        mostrarModalOperacion('error');
+                        showHideModal('cargando-modal', 'hide');
+                        mostrarModalOperacion('error-modal');
                     }
                     obtenerPersonas();
                 },
@@ -341,10 +385,11 @@ function eliminarPersona(id, nombreCompleto) {
 function advertenciaEliminar(nombreCompleto) {
     //Confirmacion de eliminacion espera que el usuario confirme o cancele
     return new Promise((resolve) => {
-        $('#btneliminarmodal').trigger('click');
+        showHideModal('eliminarmodal', 'show');
         $('#lblnombrepersonaeliminar').text(nombreCompleto);
         $('#btnconfirmacioneliminarmodal').one('click', function () {
             resolve(true);
+            showHideModal('eliminarmodal', 'hide');
         });
 
         $('#btncancelareliminarmodal').one('click', function () {
@@ -371,8 +416,8 @@ function limpiarModal() {
     $("input[name=rbtngenero][value='MASCULINO']").prop('checked', true);
 }
 function mostrarModalOperacion(nombremodal) {
-    const modalbtn = document.getElementById(nombremodal + 'btn');
-    modalbtn.click();
+    showHideModal(nombremodal, 'show');
+
     const cerrarModalPromise = new Promise((resolve) => {
         $('#' + nombremodal +'aceptarbtn').on('click', function () {
             resolve('button');
@@ -383,6 +428,40 @@ function mostrarModalOperacion(nombremodal) {
         }, 3000);
     });
     cerrarModalPromise.then(() => {
-        modalbtn.click();
+        showHideModal(nombremodal, 'hide');
     });
+}
+
+
+function cargarListaPersonasRelacionadas() {
+    $.get('/PersonaRelacionada/ObtenerPersonasRelacionadas', function (personasr) {
+        var listaRoles = $('#listapersonasrelacionadas');
+        listaRoles.empty();
+        $.each(personasr, function (index, personarr) {
+            var nombreCompleto = personarr.primer_nombre + ' ';
+            nombreCompleto += (personarr.segundo_nombre != null) ? personarr.segundo_nombre + ' ' : ' ';
+            nombreCompleto += personarr.primer_apellido + ' ';
+            nombreCompleto += (personarr.segundo_apellido != null) ? personarr.segundo_apellido : ' ';
+            var li = $('<li>').addClass('w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600');
+            var div = $('<div>').addClass('flex items-center ps-3');
+
+            var checkbox = $('<input>')
+                .attr('type', 'checkbox')
+                .attr('id', 'ck' + nombreCompleto.toLowerCase().replace(/\s+/g, ''))
+                .attr('name', 'personasreseleccionadas[]') // Agregar el atributo name aquí
+                .val(personarr.persona_relacionada_id)
+                .addClass('w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500');
+
+            var label = $('<label>')
+                .attr('for', 'ck' + nombreCompleto.toLowerCase().replace(/\s+/g, ''))
+                .addClass('text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300')
+                .text(nombreCompleto);
+
+            div.append(checkbox);
+            div.append(label);
+            li.append(div);
+            listaRoles.append(li);
+        });
+    });
+
 }
