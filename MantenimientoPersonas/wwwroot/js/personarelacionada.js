@@ -63,6 +63,12 @@
             cbciudad: {
                 required: true
             },
+            cbtipopago: {
+                required: true
+            },
+            cbentidadbancaria: {
+                required: true
+            },
             txttelefono: {
                 required: true
             },
@@ -117,7 +123,11 @@
         },
         errorPlacement: function (error, element) {
             error.addClass('text-danger fw-bolder');
-            error.insertAfter(element);
+            if (element.hasClass("select2-hidden-accessible")) {
+                error.insertAfter(element.next('span.select2'));
+            } else {
+                error.insertAfter(element);
+            }
         },
         highlight: function (element) {
             $(element).addClass('border border-3 border-danger');
@@ -139,7 +149,7 @@
     cargarRoles();
     setTimeout(function () {
         $("#cargandomodal").modal("hide");
-    }, 1000);
+    }, 2000);
 });
 function cargarEntidadesBancarias() {
     $.ajax({
@@ -195,19 +205,32 @@ function cargarComboboxes(contenidocombos) {
             cbciudad.options[cbciudad.options.length] = new Option(z[i], z[i]);
         }
     }
-    /*$('#cbciudad').on('select2:select', function (e) {
-        $('#txtciudad').val($("#select2-cbciudad-container").text());
 
-    });*/
-    /*$('#cbpais').select2({
-        theme: 'bootstrap-5'
+    $('#cbpais').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuerpomodalprincipalpr')
+
     });
     $('#cbprovincia').select2({
-        theme: 'bootstrap-5'
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuerpomodalprincipalpr')
+
     });
     $('#cbciudad').select2({
-        theme: 'bootstrap-5'
-    });*/
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuerpomodalprincipalpr')
+
+    });
+    $('#cbentidadbancaria').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuerpomodalprincipalpr')
+
+    });
+    $('#cbtipopago').select2({
+        theme: 'bootstrap-5',
+        dropdownParent: $('#cuerpomodalprincipalpr')
+
+    });
 
     limpiarModalPr();
 }
@@ -370,9 +393,30 @@ function limpiarModalPr() {
     $('#txtnumerocuentapr').val('');
     $('#cbentidadbancaria').val('');
     $("#cbpais").val([]).trigger('change');
+    
+    $("label.error").hide();
+    $(".error").removeClass("error");
+    $('.form-select').each(function () { $(this).removeClass('border border-3 border-danger'); });
+    $('.form-control').each(function () { $(this).removeClass('border border-3 border-danger'); });
 
+    
     //$("input[name=rbtngenero][value='MASCULINO']").prop('checked', true);
 }
+$(document.body).on("change", "#cbpais", function () {
+    $("#cbpais-error").hide();
+});
+$(document.body).on("change", "#cbprovincia", function () {
+    $("#cbprovincia-error").hide();
+});
+$(document.body).on("change", "#cbciudad", function () {
+    $("#cbciudad-error").hide();
+});
+$(document.body).on("change", "#cbtipopago", function () {
+    $("#cbtipopago-error").hide();
+});
+$(document.body).on("change", "#cbentidadbancaria", function () {
+    $("#cbentidadbancaria-error").hide();
+});
 function obtenerIdCiudad(name) {
     return new Promise(function (resolve, reject) {
         $.ajax({
@@ -451,6 +495,8 @@ function guardarPersonaRelacionada() {
                                     $.alert({
                                         title: 'Error al guardar',
                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-triangle-exclamation fa-beat-fade fa-6x" style="color: #FFD43B;"></i><br/><strong>El número de documento ya existe en al base de datos, intente de nuevo</strong></div></center>',
+                                        autoClose: 'tryAgain|3000',
+
                                         type: 'orange',
                                         typeAnimated: true,
                                         buttons: {
@@ -479,6 +525,8 @@ function guardarPersonaRelacionada() {
                                                     $.alert({
                                                         title: 'Guardado correctamente',
                                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se guardó correctamente</strong></div></center>',
+                                                        autoClose: 'tryAgain|3000',
+
                                                         type: 'green',
                                                         typeAnimated: true,
                                                         buttons: {
@@ -494,6 +542,8 @@ function guardarPersonaRelacionada() {
                                                     $.alert({
                                                         title: 'Error al guardar',
                                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al guardar, intente de nuevo</strong></div></center>',
+                                                        autoClose: 'tryAgain|3000',
+
                                                         type: 'red',
                                                         typeAnimated: true,
                                                         buttons: {
@@ -578,6 +628,8 @@ function guardarPersonaRelacionada() {
                                         $.alert({
                                             title: 'Editado correctamente',
                                             content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se editó correctamente</strong></div></center>',
+                                            autoClose: 'tryAgain|3000',
+
                                             type: 'green',
                                             typeAnimated: true,
                                             buttons: {
@@ -594,6 +646,8 @@ function guardarPersonaRelacionada() {
                                         $.alert({
                                             title: 'Error al editar',
                                             content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al editar, intente de nuevo</strong></div></center>',
+                                            autoClose: 'tryAgain|3000',
+
                                             type: 'red',
                                             typeAnimated: true,
                                             buttons: {
@@ -720,6 +774,8 @@ function eliminarPersonaRelacionada(id, nombreCompleto) {
                                 $.alert({
                                     title: 'Editado correctamente',
                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-4x" style="color: #04ff00;"></i><br/><br/><strong>El registro se eliminó correctamente</strong></div></center>',
+                                    autoClose: 'tryAgain|3000',
+
                                     type: 'green',
                                     typeAnimated: true,
                                     buttons: {
@@ -735,6 +791,8 @@ function eliminarPersonaRelacionada(id, nombreCompleto) {
                                 $.alert({
                                     title: 'Error al eliminar',
                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al eliminar, intente de nuevo</strong></div></center>',
+                                    autoClose: 'tryAgain|3000',
+
                                     type: 'red',
                                     typeAnimated: true,
                                     buttons: {

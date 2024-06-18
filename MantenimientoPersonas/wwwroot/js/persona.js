@@ -108,7 +108,7 @@
     })
     setTimeout(function () {
         $("#cargandomodal").modal("hide");
-    }, 1000);
+    }, 2000);
 });
 function abrirMantenimientoPersonasRe(){
     $('#cuerpomodalmostrarpersonasrelacionadas').load('/PersonaRelacionada/PersonasRelacionadasPartial');
@@ -242,6 +242,8 @@ function guardarPersona() {
                                     $.alert({
                                         title: 'Error al guardar',
                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-triangle-exclamation fa-beat-fade fa-6x" style="color: #FFD43B;"></i><br/><strong>El número de documento ya existe en al base de datos, intente de nuevo</strong></div></center>',
+                                        autoClose: 'tryAgain|3000',
+
                                         type: 'orange',
                                         typeAnimated: true,
                                         buttons: {
@@ -268,6 +270,7 @@ function guardarPersona() {
                                                 $.alert({
                                                     title: 'Guardado correctamente',
                                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se guardó correctamente</strong></div></center>',
+                                                    autoClose: 'tryAgain|3000',
                                                     type: 'green',
                                                     typeAnimated: true,
                                                     buttons: {
@@ -284,6 +287,7 @@ function guardarPersona() {
                                                 $.alert({
                                                     title: 'Error al guardar',
                                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al guardar, intente de nuevo</strong></div></center>',
+                                                    autoClose: 'tryAgain|3000',
                                                     type: 'red',
                                                     typeAnimated: true,
                                                     buttons: {
@@ -357,6 +361,7 @@ function guardarPersona() {
                                     $.alert({
                                         title: 'Editado correctamente',
                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se editó correctamente</strong></div></center>',
+                                        autoClose: 'tryAgain|3000',
                                         type: 'green',
                                         typeAnimated: true,
                                         buttons: {
@@ -372,6 +377,7 @@ function guardarPersona() {
                                     $.alert({
                                         title: 'Error al editar',
                                         content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al editar, intente de nuevo</strong></div></center>',
+                                        autoClose: 'tryAgain|3000',
                                         type: 'red',
                                         typeAnimated: true,
                                         buttons: {
@@ -470,6 +476,8 @@ function eliminarPersona(id, nombreCompleto) {
                                 $.alert({
                                     title: 'Editado correctamente',
                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-4x" style="color: #04ff00;"></i><br/><br/><strong>El registro se eliminó correctamente</strong></div></center>',
+                                    autoClose: 'tryAgain|3000',
+
                                     type: 'green',
                                     typeAnimated: true,
                                     buttons: {
@@ -485,6 +493,8 @@ function eliminarPersona(id, nombreCompleto) {
                                 $.alert({
                                     title: 'Error al eliminar',
                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al eliminar, intente de nuevo</strong></div></center>',
+                                    autoClose: 'tryAgain|3000',
+
                                     type: 'red',
                                     typeAnimated: true,
                                     buttons: {
@@ -534,6 +544,12 @@ function limpiarModal() {
     $('#txttelefono').val('');
     $('#ckmayoriaedad').prop('checked', false);
     $("input[name=rbtngenero][value='MASCULINO']").prop('checked', true);
+
+    $("label.error").hide();
+    $(".error").removeClass("error");
+    $('.form-select').each(function () { $(this).removeClass('border border-3 border-danger'); });
+    $('.form-control').each(function () { $(this).removeClass('border border-3 border-danger'); });
+
 }
 function cargarListaPersonasRelacionadas() {
     $.get('/PersonaRelacionada/ObtenerPersonasRelacionadas', function (personasr) {
