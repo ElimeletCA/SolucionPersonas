@@ -1,15 +1,13 @@
 ﻿$(function () {
+    $("#cargandomodal").modal("show");
+
     $('head').append('<style>.error-text { display: none; }</style>');
     $('#cuerpomodalprincipalpr').on('keypress', function (event) {
         if (event.keyCode === 13) {
             event.preventDefault();
         }
     });
-    $('#cbpais').select2();
 
-    $('#cbprovincia').select2();
-
-    $('#cbciudad').select2();
     //Restrinciones de los campos
     $('#txtnumerodocumentopr').inputmask('999-9999999-9');
     $('#cbtipodocumentopr').on('change', function () {
@@ -56,6 +54,12 @@
             cbtipotelefono: {
                 required: true
             },
+            cbpais: {
+                required: true
+            },
+            cbprovincia: {
+                required: true
+            },
             cbciudad: {
                 required: true
             },
@@ -63,6 +67,9 @@
                 required: true
             },
             dpfechanacimientopr: {
+                required: true
+            },
+            txtnumerocuentapr: {
                 required: true
             }
         },
@@ -72,6 +79,9 @@
             },
             txtnumerodocumentopr: {
                 required: "Por favor, introduzca el número de documento."
+            },
+            txtnumerocuentapr: {
+                required: "Por favor, introduzca el número de cuenta."
             },
             txtprimernombrepr: {
                 required: "Por favor, introduzca el primer nombre."
@@ -86,22 +96,34 @@
             txttelefonopr: {
                 required: "Por favor, introduzca el número de teléfono."
             },
+            cbtipopago: {
+                required: "Por favor, introduzca un tipo de pago."
+            },
+            cbentidadbancaria: {
+                required: "Por favor, introduzca una entidad bancaria."
+            },
+            cbpais: {
+                required: "Por favor, introduzca un pais."
+            },
+            cbprovincia: {
+                required: "Por favor, introduzca una provincia."
+            },
             cbciudad: {
-                required: "Por favor, introduzca un pais, provincia y ciudad."
+                required: "Por favor, introduzca una ciudad."
             },
             dpfechanacimientopr: {
                 required: "Por favor, introduzca una fecha de nacimiento."
             }
         },
         errorPlacement: function (error, element) {
-            error.addClass('mt-2 text-sm text-red-600 error-text');
+            error.addClass('text-danger fw-bolder');
             error.insertAfter(element);
         },
         highlight: function (element) {
-            $(element).addClass('border-red-500 text-red-900 bg-red-50');
+            $(element).addClass('border border-3 border-danger');
         },
         unhighlight: function (element) {
-            $(element).removeClass('border-red-500 text-red-900 bg-red-50');
+            $(element).removeClass('border border-3 border-danger');
         },
         success: function (label) {
             label.remove();
@@ -111,43 +133,28 @@
         }
 
     });
-
     obtenerPersonasRelacionadas();
     obtenerLocalidades();
     cargarEntidadesBancarias();
     cargarRoles();
+    setTimeout(function () {
+        $("#cargandomodal").modal("hide");
+    }, 1000);
 });
 function cargarEntidadesBancarias() {
     $.ajax({
         url: '/PersonaRelacionada/ObtenerEntidadesBancarias',
         method: 'GET',
         success: function (data) {
-            var ul = $('#ulentidadbancaria');
+            var select = $('#cbentidadbancaria');
+            select.empty();
             data.forEach(function (entidad) {
-                var li = $('<li></li>');
-                var div = $('<div></div>').addClass('flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600');
-                var input = $('<input>')
-                    .attr('id', 'rbtn' + entidad.nombre_entidad.toLowerCase().replace(/ /g, ''))
-                    .attr('type', 'radio')
+                var option = $('<option></option>')
                     .attr('value', entidad.entidad_bancaria_id)
-                    .attr('name', 'rbtnentidadbancaria')
-                    .addClass('w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500');
-                var label = $('<label></label>')
-                    .attr('for', 'rbtn' + entidad.nombre_entidad.toLowerCase().replace(/ /g, ''))
-                    .addClass('text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300')
                     .text(entidad.nombre_entidad);
-                div.append(input).append(label);
-                li.append(div);
-                ul.append(li);
+                select.append(option);
             });
-
-            // Add event listener for radio button change
-            /*$('input[name="rbtnentidadbancaria"]').on('change', function () {
-                var selectedId = $('input[name="rbtnentidadbancaria"]:checked').val();
-                console.log('Selected Entity ID:', selectedId);
-                // You can perform other actions here with the selectedId
-            });*/
-        }
+        },
     });
 }
 function obtenerLocalidades() {
@@ -192,6 +199,16 @@ function cargarComboboxes(contenidocombos) {
         $('#txtciudad').val($("#select2-cbciudad-container").text());
 
     });*/
+    /*$('#cbpais').select2({
+        theme: 'bootstrap-5'
+    });
+    $('#cbprovincia').select2({
+        theme: 'bootstrap-5'
+    });
+    $('#cbciudad').select2({
+        theme: 'bootstrap-5'
+    });*/
+
     limpiarModalPr();
 }
 function cargarRoles() {
@@ -199,19 +216,19 @@ function cargarRoles() {
         var listaRoles = $('#listaRoles');
         listaRoles.empty();
         $.each(roles, function (index, rol) {
-            var li = $('<li>').addClass('w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600');
-            var div = $('<div>').addClass('flex items-center ps-3');
+            var li = $('<li>').addClass('list-group-item');
+            var div = $('<div>').addClass('text-start');
 
             var checkbox = $('<input>')
                 .attr('type', 'checkbox')
                 .attr('id', 'ck' + rol.nombre_rol.toLowerCase().replace(/\s+/g, ''))
                 .attr('name', 'rolesSeleccionados[]') // Agregar el atributo name aquí
                 .val(rol.rol_id)
-                .addClass('w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500');
+                .addClass('form-check-input me-1');
 
             var label = $('<label>')
                 .attr('for', 'ck' + rol.nombre_rol.toLowerCase().replace(/\s+/g, ''))
-                .addClass('text-left w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300')
+                .addClass('form-check-label')
                 .text(rol.nombre_rol);
 
             div.append(checkbox);
@@ -223,90 +240,112 @@ function cargarRoles() {
 }
 function agregarPersonaRelacionada()
 {
-    showHideModal('modalprincipalpr', 'show');
     $('#lblmodalprincipalpr').text('Agregar nueva persona relacionada');
     limpiarModalPr();
-}
-function filtrarlista(idinput, idul) {
-    // Declare variables
-    var input, filter, ul, li, label, i, txtValue;
-    input = document.getElementById(idinput);
-    filter = input.value.toUpperCase();
-    ul = document.getElementById(idul);
-    li = ul.getElementsByTagName('li');
+    $("#modalprincipalpr").modal("show");
 
-    // Loop through all list items, and hide those who don't match the search query
-    for (i = 0; i < li.length; i++) {
-        label = li[i].getElementsByTagName("label")[0];
-        txtValue = label.textContent || label.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
-        } else {
-            li[i].style.display = "none";
-        }
-    }
+
 }
+
 function obtenerPersonasRelacionadas() {
-    showHideModal('cargando-modal', 'show');
-    $.ajax({
-        url: '/PersonaRelacionada/ObtenerPersonasRelacionadas',
-        type: 'GET',
-        dataType: 'json',
-        contentType: 'application/json;charset=utf-8',
-        success: function (response) {
-            if (response == null || response == undefined || response.length == 0) {
-                var object = '';
-                object += '<tr class="bg-white whitespace-nowrap border-b text-center font-bold border-b dark:bg-gray-800 dark:border-gray-700">';
-                object += '<td colspan="9">' + 'Personas relacionadas no disponibles' + '</td>';
-                object += '</tr>';
-
-                $('#tblpersonasrbody').html(object);
-
-            } else {
-                var object = '';
-                $.each(response, function (index, personar) {
-
-                    var nombreCompleto = personar.primer_nombre + ' ';
-                    nombreCompleto += (personar.segundo_nombre != null) ? personar.segundo_nombre + ' ' : ' ';
-                    nombreCompleto += personar.primer_apellido + ' ';
-                    nombreCompleto += (personar.segundo_apellido != null) ? personar.segundo_apellido : ' ';
-
-                    var rolesNombres = personar.roles.map(function (rol) {
-                        return rol.nombre_rol;
-                    }).join('<br/>');
-                    object += '<tr class="bg-white whitespace-nowrap border-b text-center font-bold border-b dark:bg-gray-800 dark:border-gray-700">';
-                    object += '<td class="px-4 py-4">' + personar.numero_documento + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.primer_nombre + '</td>';
-                    object += '<td class="px-4 py-4">';
-                    object += (personar.segundo_nombre != null) ? personar.segundo_nombre : '';
-                    object += '</td>';
-                    object += '<td class="px-4 py-4">' + personar.primer_apellido + '</td>';
-                    object += '<td class="px-4 py-4">';
-                    object += (personar.segundo_apellido != null) ? personar.segundo_apellido : '';
-                    object += '</td>';
-                    object += '<td class="px-4 py-4">' + moment(personar.fecha_nacimiento).format('DD/MM/YYYY') + '</td>';
-                    object += '<td class="px-4 py-4">' + rolesNombres + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.correo_electronico + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.numero_telefono_principal + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.tipo_pago + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.numero_cuenta + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.nombre_entidad_bancaria + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.nombre_pais + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.nombre_provincia + '</td>';
-                    object += '<td class="px-4 py-4">' + personar.nombre_ciudad + '</td>';
-                    object += '<td class="px-4 py-4">';
-                    object += '<button type="button" onclick="editarPersonaRelacionada(' + personar.persona_relacionada_id + ')" class="border-b text-white bg-yellow-400 hover:bg-yellow-900 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"><svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 23 19"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/></button>&nbsp;';
-                    object += '<button type="button" onclick="eliminarPersonaRelacionada(' + personar.persona_relacionada_id + ',`' + nombreCompleto + '`)" class="border-b text-white bg-red-600 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" ><svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 19"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z" /></svg><span class="sr-only">Icon description</span></button>&nbsp;';
-                    object += '</td > ';
-                    object += '</tr>';
-                });
-                $('#tblpersonasrbody').html(object);
+    $('#tblpersonasr').DataTable({
+        layout: {
+            topStart: {
+                buttons: [
+                    {
+                        text: 'Agregar nueva persona relacionada',
+                        className: '',
+                        action: function (e, dt, node, config) {
+                            agregarPersonaRelacionada();
+                        }
+                    }
+                ]
             }
         },
-        error: function () {
-        }
+        paging: false,
+        scrollCollapse: true,
+        scrollY: '350px',
+        "ajax": {
+            "url": "/PersonaRelacionada/ObtenerPersonasRelacionadas",
+            "type": "GET",
+            "dataType": "json",
+            "contentType": "application/json;charset=utf-8",
+            "dataSrc": function (response) {
+                if (!response || response.length === 0) {
+                    $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="16">Personas no disponibles</td></tr>');
+                    return [];
+                }
+
+                return response;
+            }
+        },
+        "columns": [
+            { "data": "numero_documento" },
+            { "data": "primer_nombre" },
+            {
+                "data": "segundo_nombre",
+                "render": function (data, type, row) {
+                    return data != null ? data : '';
+                }
+            },
+            { "data": "primer_apellido" },
+            {
+                "data": "segundo_apellido",
+                "render": function (data, type, row) {
+                    return data != null ? data : '';
+                }
+            },
+            {
+                "data": "fecha_nacimiento",
+                "render": function (data, type, row) {
+                    return data ? moment(data).format('DD/MM/YYYY') : '';
+                }
+            },
+            {
+                "data": "roles",
+                "className": "scroll-cell",
+                "render": function (data, type, row) {
+                    return data.map(function (rol) { return rol.nombre_rol; }).join('<br/>');
+                }
+            },
+            { "data": "correo_electronico" },
+            { "data": "numero_telefono_principal" },
+            { "data": "tipo_pago" },
+            { "data": "numero_cuenta" },
+            {
+                "data": "nombre_entidad_bancaria",
+                "render": function (data, type, row) {
+                    return data ? data + '&nbsp;' : '';
+                }
+            },
+            {
+                "data": "nombre_pais",
+                "render": function (data, type, row) {
+                    return data ? data + '&nbsp;' : '';
+                }
+            },
+            {
+                "data": "nombre_provincia",
+                "render": function (data, type, row) {
+                    return data ? data + '&nbsp;' : '';
+                }
+            },
+            {
+                "data": "nombre_ciudad",
+                "render": function (data, type, row) {
+                    return data ? data + '&nbsp;' : '';
+                }
+            },
+            {
+                "data": null,
+                "render": function (data, type, row) {
+                    var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
+                    return '<button type="button" onclick="editarPersonaRelacionada(' + row.persona_relacionada_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;' +
+                        '<button type="button" onclick="eliminarPersonaRelacionada(' + row.persona_relacionada_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
+                }
+            }
+        ]
     });
-    showHideModal('cargando-modal', 'hide');
 
 }
 function limpiarModalPr() {
@@ -327,9 +366,9 @@ function limpiarModalPr() {
     $('#txtemailpr').val('');
     $('#cbtipotelefonopr').val('');
     $('#txttelefonopr').val('');
-    $('input[name="rbtntipopago"]').prop('checked', false);
+    $('#cbtipopago').val('');
     $('#txtnumerocuentapr').val('');
-    $('input[name="rbtnentidadbancaria"]').prop('checked', false);
+    $('#cbentidadbancaria').val('');
     $("#cbpais").val([]).trigger('change');
 
     //$("input[name=rbtngenero][value='MASCULINO']").prop('checked', true);
@@ -373,143 +412,232 @@ function marcarRolesSeleccionados(roles) {
 function guardarPersonaRelacionada() {
 
     if ($('#txtpersonarid').val() == '' || $('#txtpersonarid').val() == null) {
-        advertenciaGuardar().then((confirmado) => {
-            if (confirmado) {
-                showHideModal('cargando-modal', 'show');
-                //Agregar nueva persona relacionada
-                var personar = new Object();
-                personar.tipo_documento = $('#cbtipodocumentopr').val().toUpperCase();
-                personar.numero_documento = $('#txtnumerodocumentopr').val().toUpperCase();
-                personar.primer_nombre = $('#txtprimernombrepr').val().toUpperCase();
-                personar.segundo_nombre = $('#txtsegundonombrepr').val().toUpperCase();
-                personar.primer_apellido = $('#txtprimerapellidopr').val().toUpperCase();
-                personar.segundo_apellido = $('#txtsegundoapellidopr').val().toUpperCase();
-                personar.fecha_nacimiento = moment($('#dpfechanacimientopr').val(), 'DD/MM/YYYY').format('MM/DD/YYYY');
-                personar.correo_electronico = $('#txtemailpr').val();
-                personar.tipo_telefono_principal = $('#cbtipotelefonopr').val();
-                personar.numero_telefono_principal = $('#txttelefonopr').val();
-                personar.numero_cuenta = $('#txtnumerocuentapr').val();
-                personar.tipo_pago = $("input[name=rbtntipopago]:checked").val();
-                personar.entidad_bancaria_id = $("input[name=rbtnentidadbancaria]:checked").val();
-                personar.roles_id = obtenerRolesSeleccionados();
-                personar.estado_activo = true;
-                //personar.mayoria_edad = $('#ckmayoriaedad').prop('checked');
-                //personar.tipo_pago = $("input[name=rbtngenero]:checked").val();
+        $.confirm({
+            title: 'Esta seguro que quiere guardar la persona?',
+            content: '<br/><div class="text-center"><i class="fa-solid fa-floppy-disk fa-bounce fa-6x" style="color: #0091ff;"></i></div><br/>',
+            buttons: {
+                confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-green',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                        $("#cargandomodal").modal("show");
+                        //Agregar nueva persona relacionada
+                        var personar = new Object();
+                        personar.tipo_documento = $('#cbtipodocumentopr').val().toUpperCase();
+                        personar.numero_documento = $('#txtnumerodocumentopr').val().toUpperCase();
+                        personar.primer_nombre = $('#txtprimernombrepr').val().toUpperCase();
+                        personar.segundo_nombre = $('#txtsegundonombrepr').val().toUpperCase();
+                        personar.primer_apellido = $('#txtprimerapellidopr').val().toUpperCase();
+                        personar.segundo_apellido = $('#txtsegundoapellidopr').val().toUpperCase();
+                        personar.fecha_nacimiento = $('#dpfechanacimientopr').val();
+                        personar.correo_electronico = $('#txtemailpr').val();
+                        personar.tipo_telefono_principal = $('#cbtipotelefonopr').val();
+                        personar.numero_telefono_principal = $('#txttelefonopr').val();
+                        personar.numero_cuenta = $('#txtnumerocuentapr').val();
+                        personar.tipo_pago = $('#cbtipopago').val();
+                        personar.entidad_bancaria_id = $('#cbentidadbancaria').val();
 
-                $.ajax({
-                    url: '/PersonaRelacionada/ObtenerPersonaRelacionadaPorNumeroDocumento?ndocumento=' + personar.numero_documento,
-                    type: 'GET',
-                    dataType: 'json',
-                    contentType: 'application/json;charset=utf-8',
-                    success: function (response) {
-                        if (response.message == 1) {
-                            showHideModal('cargando-modal', 'hide');
+                        personar.roles_id = obtenerRolesSeleccionados();
+                        personar.estado_activo = true;
+                        $.ajax({
+                            url: '/PersonaRelacionada/ObtenerPersonaRelacionadaPorNumeroDocumento?ndocumento=' + personar.numero_documento,
+                            type: 'GET',
+                            dataType: 'json',
+                            contentType: 'application/json;charset=utf-8',
+                            success: function (response) {
+                                if (response.message == 1) {
 
-                            mostrarModalOperacionPr('advertencia-modal');
-
-                        } else {
-                            obtenerIdCiudad($("#select2-cbciudad-container").text()).then((ciudadId) => {
-                                personar.ciudad_id = ciudadId;
-                                $.ajax({
-                                    url: '/PersonaRelacionada/AgregarPersonaRelacionada',
-                                    type: 'POST',
-                                    data: personar,
-                                    success: function (response) {
-                                        showHideModal('cargando-modal', 'hide');
-                                        if (response.message == 1) {
-                                            mostrarModalOperacionPr('exito-modal');
-                                        } else {
-                                            mostrarModalOperacionPr('error-modal');
+                                    $.alert({
+                                        title: 'Error al guardar',
+                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-triangle-exclamation fa-beat-fade fa-6x" style="color: #FFD43B;"></i><br/><strong>El número de documento ya existe en al base de datos, intente de nuevo</strong></div></center>',
+                                        type: 'orange',
+                                        typeAnimated: true,
+                                        buttons: {
+                                            tryAgain: {
+                                                text: 'Intentar de nuevo',
+                                                btnClass: 'btn-warning',
+                                                action: function () {
+                                                }
+                                            }
                                         }
-                                        obtenerPersonasRelacionadas();
-                                        limpiarModalPr();
-                                        showHideModal('modalprincipalpr', 'hide');
-                                    },
-                                    error: function () {
-                                        showHideModal('cargando-modal', 'hide');
-                                        mostrarModalOperacionPr('error-modal');
-                                    }
-                                });
-                            }).catch((error) => {
+                                    });
+                                    setTimeout(function () {
+                                        $("#cargandomodal").modal("hide");
+                                    }, 1000);
 
-                            });
-                        }
+                                } else {
+                                    obtenerIdCiudad($('#cbciudad').val()).then((ciudadId) => {
+                                        personar.ciudad_id = ciudadId;
+                                        $.ajax({
+                                            url: '/PersonaRelacionada/AgregarPersonaRelacionada',
+                                            type: 'POST',
+                                            data: personar,
+                                            success: function (response) {
+                                                if (response.message == 1) {
+
+                                                    $.alert({
+                                                        title: 'Guardado correctamente',
+                                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se guardó correctamente</strong></div></center>',
+                                                        type: 'green',
+                                                        typeAnimated: true,
+                                                        buttons: {
+                                                            tryAgain: {
+                                                                text: 'Aceptar',
+                                                                btnClass: 'btn-success',
+                                                                action: function () {
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                } else {
+                                                    $.alert({
+                                                        title: 'Error al guardar',
+                                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al guardar, intente de nuevo</strong></div></center>',
+                                                        type: 'red',
+                                                        typeAnimated: true,
+                                                        buttons: {
+                                                            tryAgain: {
+                                                                text: 'Intentar de nuevo',
+                                                                btnClass: 'btn-danger',
+                                                                action: function () {
+                                                                }
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                                limpiarModalPr();
+                                                $('#tblpersonasr').DataTable().ajax.reload();
+                                                setTimeout(function () {
+                                                    $("#modalprincipalpr").modal("hide");
+
+                                                    $("#cargandomodal").modal("hide");
+
+                                                }, 1000);
+
+                                            },
+                                            error: function () {
+                                            }
+                                        });
+                                    }).catch((error) => {
+
+                                    });
+                                }
+                            }
+                        });
                     }
-                });
-
+                },
+                cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-dark',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                    }
+                }
             }
         });
 
     } else {
-        advertenciaEditar().then((confirmado) => {
-            if (confirmado) {
-                showHideModal('cargando-modal', 'show');
-                //Actualizar datos de persona
-                var personar = new Object();
-                personar.persona_relacionada_id = $('#txtpersonarid').val();
-                personar.tipo_documento = $('#cbtipodocumentopr').val().toUpperCase();
-                personar.numero_documento = $('#txtnumerodocumentopr').val().toUpperCase();
-                personar.primer_nombre = $('#txtprimernombrepr').val().toUpperCase();
-                personar.segundo_nombre = $('#txtsegundonombrepr').val().toUpperCase();
-                personar.primer_apellido = $('#txtprimerapellidopr').val().toUpperCase();
-                personar.segundo_apellido = $('#txtsegundoapellidopr').val().toUpperCase();
-                personar.fecha_nacimiento = moment($('#dpfechanacimientopr').val(), 'DD/MM/YYYY').format('MM/DD/YYYY');
-                personar.correo_electronico = $('#txtemailpr').val();
-                personar.tipo_telefono_principal = $('#cbtipotelefonopr').val();
-                personar.numero_telefono_principal = $('#txttelefonopr').val();
-                personar.numero_cuenta = $('#txtnumerocuentapr').val();
-                personar.tipo_pago = $("input[name=rbtntipopago]:checked").val();
-                personar.entidad_bancaria_id = $("input[name=rbtnentidadbancaria]:checked").val();
-                personar.roles_id = obtenerRolesSeleccionados();
-                personar.estado_activo = true;
-                obtenerIdCiudad($("#cbciudad").val()).then((ciudadId) => {
-                    personar.ciudad_id = ciudadId;
-                    $.ajax({
-                        url: '/PersonaRelacionada/ActualizarPersonaRelacionada',
-                        type: 'PUT',
-                        data: personar,
-                        success: function (response) {
-                            showHideModal('cargando-modal', 'hide');
-                            if (response.message == 1) {
-                                mostrarModalOperacionPr('exito-modal');
-                            } else {
-                                mostrarModalOperacionPr('error-modal');
-                            }
-                            obtenerPersonasRelacionadas();
-                            limpiarModalPr();
-                            showHideModal('modalprincipalpr', 'hide');
-                        },
-                        error: function () {
-                            //cargandobtn.click();
-                            //mostrarModalOperacion('error');
-                        }
-                    });
-                }).catch((error) => {
-   
-                });
+        $.confirm({
+            title: 'Esta seguro que quiere editar la persona?',
+            content: '<br/><div class="text-center"><i class="fa-solid fa-square-pen fa-shake fa-6x" style="color: #FFD43B;"></i></div><br/>',
+            buttons: {
+                confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-green',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                        $("#cargandomodal").modal("show");
+                        //Actualizar datos de persona
+                        var personar = new Object();
+                        personar.persona_relacionada_id = $('#txtpersonarid').val();
+                        personar.tipo_documento = $('#cbtipodocumentopr').val().toUpperCase();
+                        personar.numero_documento = $('#txtnumerodocumentopr').val().toUpperCase();
+                        personar.primer_nombre = $('#txtprimernombrepr').val().toUpperCase();
+                        personar.segundo_nombre = $('#txtsegundonombrepr').val().toUpperCase();
+                        personar.primer_apellido = $('#txtprimerapellidopr').val().toUpperCase();
+                        personar.segundo_apellido = $('#txtsegundoapellidopr').val().toUpperCase();
+                        personar.fecha_nacimiento = $('#dpfechanacimientopr').val();
+                        personar.correo_electronico = $('#txtemailpr').val();
+                        personar.tipo_telefono_principal = $('#cbtipotelefonopr').val();
+                        personar.numero_telefono_principal = $('#txttelefonopr').val();
+                        personar.numero_cuenta = $('#txtnumerocuentapr').val();
+                        personar.tipo_pago = $('#cbtipopago').val();
+                        personar.entidad_bancaria_id = $('#cbentidadbancaria').val();
+                        personar.roles_id = obtenerRolesSeleccionados();
+                        personar.estado_activo = true;
+
+                        obtenerIdCiudad($("#cbciudad").val()).then((ciudadId) => {
+                            personar.ciudad_id = ciudadId;
+                            $.ajax({
+                                url: '/PersonaRelacionada/ActualizarPersonaRelacionada',
+                                type: 'PUT',
+                                data: personar,
+                                success: function (response) {
+                                    if (response.message == 1) {
+                                        $.alert({
+                                            title: 'Editado correctamente',
+                                            content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se editó correctamente</strong></div></center>',
+                                            type: 'green',
+                                            typeAnimated: true,
+                                            buttons: {
+                                                tryAgain: {
+                                                    text: 'Aceptar',
+                                                    btnClass: 'btn-success',
+                                                    action: function () {
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    } else {
+
+                                        $.alert({
+                                            title: 'Error al editar',
+                                            content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al editar, intente de nuevo</strong></div></center>',
+                                            type: 'red',
+                                            typeAnimated: true,
+                                            buttons: {
+                                                tryAgain: {
+                                                    text: 'Intentar de nuevo',
+                                                    btnClass: 'btn-danger',
+                                                    action: function () {
+                                                    }
+                                                }
+                                            }
+                                        });                                    }
+                                    $('#tblpersonasr').DataTable().ajax.reload();
+                                    limpiarModalPr();
+                                    setTimeout(function () {
+                                        $("#modalprincipalpr").modal("hide");
+                                        $("#cargandomodal").modal("hide");
+
+                                    }, 1000);
+                                },
+                                error: function () {
+                                    //cargandobtn.click();
+                                    //mostrarModalOperacion('error');
+                                }
+                            });
+                        }).catch((error) => {
+
+                        });
+                    }
+                },
+                cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-dark',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                    }
+                }
             }
         });
 
 
+
     }
 }
-function advertenciaGuardar() {
-    //Confirmacion de guardado espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('guardadomodal', 'show');
-        $('#btnconfirmacionguardadomodal').one('click', function () {
-            resolve(true);
-            showHideModal('guardadomodal', 'hide');
 
-        });
-        $('#btncancelarguardadomodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btnguardadomodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
 function editarPersonaRelacionada(id) {
     //Colocar los datos de la persona en el modal
     $.ajax({
@@ -522,24 +650,27 @@ function editarPersonaRelacionada(id) {
 
             } else {
                 limpiarModalPr();
-                showHideModal('modalprincipalpr', 'show');
                 $('#lblmodalprincipalpr').text('Editar persona relacionada');
                 $('#txtpersonarid').val(personarelacionada.persona_relacionada_id);
-                $("input[name=rbtnentidadbancaria][value='" + personarelacionada.entidad_bancaria_id + "']").prop('checked', true);
+                $('#cbentidadbancaria').val(personarelacionada.nombre_entidad);
                 $('#cbtipodocumentopr').val(personarelacionada.tipo_documento);
                 $('#txtnumerodocumentopr').val(personarelacionada.numero_documento);
                 $('#txtprimernombrepr').val(personarelacionada.primer_nombre);
                 $('#txtsegundonombrepr').val(personarelacionada.segundo_nombre);
                 $('#txtprimerapellidopr').val(personarelacionada.primer_apellido);
                 $('#txtsegundoapellidopr').val(personarelacionada.segundo_apellido);
-                $('#dpfechanacimientopr').val(moment(personarelacionada.fecha_nacimiento).format('DD/MM/YYYY')); 
+                $('#dpfechanacimientopr').val(moment(personarelacionada.fecha_nacimiento).format('YYYY-MM-DD')); 
                 $('#txtemailpr').val(personarelacionada.correo_electronico);
                 $('#cbtipotelefonopr').val(personarelacionada.tipo_telefono_principal);
                 $('#txttelefonopr').val(personarelacionada.numero_telefono_principal);
-                $("input[name=rbtntipopago][value='" + personarelacionada.tipo_pago + "']").prop('checked', true);
+                $('#cbtipopago').val(personarelacionada.tipo_pago);
                 $('#txtnumerocuentapr').val(personarelacionada.numero_cuenta);
+                $('#cbentidadbancaria').val(personarelacionada.entidad_bancaria_id);
+
                 marcarRolesSeleccionados(personarelacionada.roles_id);
                 cargarLocalidad(personarelacionada.ciudad_id);
+                $("#modalprincipalpr").modal("show");
+
 
 
 
@@ -560,7 +691,6 @@ function cargarLocalidad(ciudadId) {
             $("#cbpais").val(data.pais).trigger('change');
             $("#cbprovincia").val(data.provincia).trigger('change');
             $("#cbciudad").val(data.ciudad).trigger('change');
-            console.log("funciona");
 
         },
         error: function (error) {
@@ -568,82 +698,73 @@ function cargarLocalidad(ciudadId) {
         }
     });
 }
-function advertenciaEditar() {
-    //Confirmacion de edicion espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('edicionmodal', 'show');
-        $('#btnconfirmacionedicionmodal').one('click', function () {
-            resolve(true);
-            showHideModal('edicionmodal', 'hide');
 
-        });
-        $('#btncancelaredicionmodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btnedicionmodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
 function eliminarPersonaRelacionada(id, nombreCompleto) {
-    advertenciaEliminar(nombreCompleto).then((confirmado) => {
-        if (confirmado) {
-            showHideModal('cargando-modal', 'show');
-            $.ajax({
-                url: '/PersonaRelacionada/EliminarPersonaRelacionada?id=' + id,
-                type: 'DELETE',
-                dataType: 'json',
-                contentType: 'application/json;charset=utf-8',
-                success: function (response) {
-                    if (response.message == 1) {
-                        showHideModal('cargando-modal', 'hide');
-                        mostrarModalOperacionPr('exito-modal');
-                    } else {
-                        showHideModal('cargando-modal', 'hide');
-                        mostrarModalOperacionPr('error-modal');
-                    }
-                    obtenerPersonasRelacionadas();
-                },
-                error: function () {
+    $.confirm({
+        title: 'Esta seguro que quiere eliminar la persona?',
+        content: '<br/><div class="text-center"><i class="fa-solid fa-trash fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>' + nombreCompleto + '</strong></div><br/>',
+        buttons: {
+            confirmar: {
+                text: 'Confirmar',
+                btnClass: 'btn-red',
+                keys: ['enter', 'shift'],
+                action: function () {
+                    $("#cargandomodal").modal("show");
+                    $.ajax({
+                        url: '/PersonaRelacionada/EliminarPersonaRelacionada?id=' + id,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        contentType: 'application/json;charset=utf-8',
+                        success: function (response) {
+                            if (response.message == 1) {
+                                $.alert({
+                                    title: 'Editado correctamente',
+                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-4x" style="color: #04ff00;"></i><br/><br/><strong>El registro se eliminó correctamente</strong></div></center>',
+                                    type: 'green',
+                                    typeAnimated: true,
+                                    buttons: {
+                                        tryAgain: {
+                                            text: 'Aceptar',
+                                            btnClass: 'btn-success',
+                                            action: function () {
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                $.alert({
+                                    title: 'Error al eliminar',
+                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al eliminar, intente de nuevo</strong></div></center>',
+                                    type: 'red',
+                                    typeAnimated: true,
+                                    buttons: {
+                                        tryAgain: {
+                                            text: 'Intentar de nuevo',
+                                            btnClass: 'btn-danger',
+                                            action: function () {
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            $('#tblpersonasr').DataTable().ajax.reload();
+                            setTimeout(function () {
+                                $("#cargandomodal").modal("hide");
+                            }, 1000);
+                        },
+                        error: function () {
 
+                        }
+                    });
                 }
-            });
-
+            },
+            cancelar: {
+                text: 'Cancelar',
+                btnClass: 'btn-dark',
+                keys: ['enter', 'shift'],
+                action: function () {
+                }
+            }
         }
-    });
-}
-function advertenciaEliminar(nombreCompleto) {
-    //Confirmacion de eliminacion espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('eliminarmodal', 'show');
-        $('#lblnombrepersonaeliminar').text(nombreCompleto);
-        $('#btnconfirmacioneliminarmodal').one('click', function () {
-            resolve(true);
-            showHideModal('eliminarmodal', 'hide');
-
-        });
-
-        $('#btncancelareliminarmodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btneliminarmodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
-function mostrarModalOperacionPr(nombremodal) {
-    showHideModal(nombremodal, 'show');
-
-    const cerrarModalPromise = new Promise((resolve) => {
-        $('#' + nombremodal +'aceptarbtn').on('click', function () {
-            resolve('button');
-        });
-
-        setTimeout(() => {
-            resolve('timeout');
-        }, 3000);
-    });
-    cerrarModalPromise.then(() => {
-        showHideModal(nombremodal, 'hide');
     });
 }

@@ -101,13 +101,15 @@
         }
 
     });
-    
+    const modalpersonar = document.getElementById('modalmostrarpersonasrelacionadas');
+    modalpersonar.addEventListener('hidden.bs.modal', event => {
+        cargarListaPersonasRelacionadas();
+        editarPersona($('#txtpersonaid').val());
+    })
     setTimeout(function () {
         $("#cargandomodal").modal("hide");
-    }, 2000);
+    }, 1000);
 });
-
-
 function abrirMantenimientoPersonasRe(){
     $('#cuerpomodalmostrarpersonasrelacionadas').load('/PersonaRelacionada/PersonasRelacionadasPartial');
     $("#modalmostrarpersonasrelacionadas").modal("show");
@@ -130,7 +132,7 @@ function obtenerPersonas() {
         },
         paging: false,
         scrollCollapse: true,
-        scrollY: '500px',
+        scrollY: '350px',
         "ajax": {
             "url": "/Persona/ObtenerPersonas",
             "type": "GET",
@@ -138,7 +140,7 @@ function obtenerPersonas() {
             "contentType": "application/json;charset=utf-8",
             "dataSrc": function (response) {
                 if (!response || response.length === 0) {
-                    $('#tblpersonasbody').html('<tr class="bg-white whitespace-nowrap border-b text-center font-bold border-b dark:bg-gray-800 dark:border-gray-700"><td colspan="9">Personas no disponibles</td></tr>');
+                    $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Personas no disponibles</td></tr>');
                     return [];
                 }
 
@@ -174,8 +176,8 @@ function obtenerPersonas() {
                 "data": null,
                 "render": function (data, type, row) {
                     var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
-                    return '<button type="button" onclick="editarPersona(' + row.persona_id + ')" class=""></button>&nbsp;' +
-                        '<button type="button" onclick="eliminarPersona(' + row.persona_id + ', `' + nombreCompleto + '`)" class=""></button>&nbsp;';
+                    return '<button type="button" onclick="editarPersona(' + row.persona_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;' +
+                        '<button type="button" onclick="eliminarPersona(' + row.persona_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
                 }
             }
         ]
@@ -184,14 +186,9 @@ function obtenerPersonas() {
 function agregarPersona() {
     //$('#tblpersonas').DataTable().ajax.reload();
     //    $("#cargandomodal").modal("show");
-
     $('#lblmodalprincipal').text('Agregar nueva persona');
     limpiarModal();
     $("#modalprincipal").modal("show");
-
-
-
-
 }
 function obtenerPersonasReSeleccionadas() {
     var PersonasReSeleccionadas = [];
@@ -211,36 +208,13 @@ function guardarPersona() {
     if ($('#txtpersonaid').val() == '' || $('#txtpersonaid').val() == null) {
         $.confirm({
             title: 'Esta seguro que quiere guardar la persona?',
-            content: '',
+            content: '<br/><div class="text-center"><i class="fa-solid fa-floppy-disk fa-bounce fa-6x" style="color: #0091ff;"></i></div><br/>',
             buttons: {
-                confirm:  {
-                    text: 'Something else',
-                    btnClass: 'btn-blue',
+                confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-green',
                     keys: ['enter', 'shift'],
                     action: function () {
-                        $.alert('Something?');
-                    }                },
-                cancel: function () {
-                    $.alert('Canceled!');
-                },
-                somethingElse: {
-                    text: 'Something else',
-                    btnClass: 'btn-blue',
-                    keys: ['enter', 'shift'],
-                    action: function () {
-                        $.alert('Something else?');
-                    }
-                }
-            }
-        });
-        /*$.confirm({
-            content: '<i class="bi bi-floppy-fill"></i>',
-            buttons: {
-                aceptar: {
-                    btnClass: 'btn-blue',
-                    btnAceptar: function () {
-                        $.alert('Something else?');
-
                         $("#cargandomodal").modal("show");
                         //Agregar nueva persona
                         var persona = new Object();
@@ -264,13 +238,10 @@ function guardarPersona() {
                             contentType: 'application/json;charset=utf-8',
                             success: function (response) {
                                 if (response.message == 1) {
-                                    setTimeout(function () {
-                                        $("#cargandomodal").modal("hide");
-                                    }, 1000);
 
-                                    $.confirm({
+                                    $.alert({
                                         title: 'Error al guardar',
-                                        content: 'El número de documento que intenta almacenar ya existe en al base de datos, por favor verifique e intente de nuevo',
+                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-triangle-exclamation fa-beat-fade fa-6x" style="color: #FFD43B;"></i><br/><strong>El número de documento ya existe en al base de datos, intente de nuevo</strong></div></center>',
                                         type: 'orange',
                                         typeAnimated: true,
                                         buttons: {
@@ -279,11 +250,12 @@ function guardarPersona() {
                                                 btnClass: 'btn-warning',
                                                 action: function () {
                                                 }
-                                            },
-                                            close: function () {
                                             }
                                         }
                                     });
+                                    setTimeout(function () {
+                                        $("#cargandomodal").modal("hide");
+                                    }, 1000);
 
                                 } else {
                                     $.ajax({
@@ -292,12 +264,10 @@ function guardarPersona() {
                                         data: persona,
                                         success: function (response) {
                                             if (response.message == 1) {
-                                                setTimeout(function () {
-                                                    $("#cargandomodal").modal("hide");
-                                                }, 1000);
-                                                $.confirm({
-                                                    title: 'Guardado exitoso',
-                                                    content: '<img class="w-24 h-24" src="~/resources/images/exito.webp" alt="" />',
+
+                                                $.alert({
+                                                    title: 'Guardado correctamente',
+                                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se guardó correctamente</strong></div></center>',
                                                     type: 'green',
                                                     typeAnimated: true,
                                                     buttons: {
@@ -306,32 +276,31 @@ function guardarPersona() {
                                                             btnClass: 'btn-success',
                                                             action: function () {
                                                             }
-                                                        },
-                                                        close: function () {
                                                         }
                                                     }
                                                 });
                                             } else {
-                                                setTimeout(function () {
-                                                    $("#cargandomodal").modal("hide");
-                                                }, 1000);
-                                                $.confirm({
-                                                    title: 'Error',
-                                                    content: '<img class="w-24 h-24" src="~/resources/images/error.webp" alt="" />',
+
+                                                $.alert({
+                                                    title: 'Error al guardar',
+                                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al guardar, intente de nuevo</strong></div></center>',
                                                     type: 'red',
                                                     typeAnimated: true,
                                                     buttons: {
                                                         tryAgain: {
                                                             text: 'Intentar de nuevo',
-                                                            btnClass: 'btn-red',
+                                                            btnClass: 'btn-danger',
                                                             action: function () {
                                                             }
-                                                        },
-                                                        close: function () {
                                                         }
                                                     }
-                                                });                                            }
-                                            obtenerPersonas();
+                                                });
+                                            }
+                                            $('#tblpersonas').DataTable().ajax.reload();
+                                            setTimeout(function () {
+                                                $("#cargandomodal").modal("hide");
+                                            }, 1000);
+
                                             limpiarModal();
                                             $("#modalprincipal").modal("hide");
                                         },
@@ -341,99 +310,108 @@ function guardarPersona() {
                                 }
                             }
                         });
-                    }                },
-                cancelar: {
-                    btnClass: 'btn-dark',
-                    Cancelar: function () { }
-                },
-            }
-        });*/        
-    } else {
-        advertenciaEditar().then((confirmado) => {
-            if (confirmado) {
-                showHideModal('cargando-modal', 'show');
-                //Actualizar datos de persona
-                var persona = new Object();
-                persona.persona_id = $('#txtpersonaid').val();
-                persona.tipo_documento = $('#cbtipodocumento').val();
-                persona.numero_documento = $('#txtnumerodocumento').val();
-                persona.primer_nombre = $('#txtprimernombre').val().toUpperCase();
-                persona.segundo_nombre = $('#txtsegundonombre').val().toUpperCase();
-                persona.primer_apellido = $('#txtprimerapellido').val().toUpperCase();
-                persona.segundo_apellido = $('#txtsegundoapellido').val().toUpperCase();
-                persona.tipo_telefono = $('#cbtipotelefono').val();
-                persona.numero_telefono = $('#txttelefono').val();
-                persona.mayoria_edad = $('#ckmayoriaedad').prop('checked');
-                persona.genero = $("input[name=rbtngenero]:checked").val();
-                persona.pr_id = obtenerPersonasReSeleccionadas();
-                persona.estado_activo = true;
-
-                $.ajax({
-                    url: '/Persona/ActualizarPersona',
-                    type: 'PUT',
-                    data: persona,
-                    success: function (response) {
-                        if (response.message == 1) {
-                            showHideModal('cargando-modal', 'hide');
-                            mostrarModalOperacion('exito-modal');
-                        } else {
-                            showHideModal('cargando-modal', 'hide');
-                            mostrarModalOperacion('error-modal');
-                        }
-                        obtenerPersonas();
-                        limpiarModal();
-
-                        showHideModal('modalprincipal', 'hide');
-                    },
-                    error: function () {
-                        showHideModal('cargando-modal', 'hide');
-                        showHideModal('error-modal', 'show');
                     }
-                });
+                },
+                cancelar: {
+                    text: 'Cancelar',
+                    btnClass: 'btn-dark',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                    }
+                }
             }
         });
+    } else {
+        $.confirm({
+            title: 'Esta seguro que quiere editar la persona?',
+            content: '<br/><div class="text-center"><i class="fa-solid fa-square-pen fa-shake fa-6x" style="color: #FFD43B;"></i></div><br/>',
+            buttons: {
+                confirmar: {
+                    text: 'Confirmar',
+                    btnClass: 'btn-green',
+                    keys: ['enter', 'shift'],
+                    action: function () {
+                        $("#cargandomodal").modal("show");
+                        //Actualizar datos de persona
+                        var persona = new Object();
+                        persona.persona_id = $('#txtpersonaid').val();
+                        persona.tipo_documento = $('#cbtipodocumento').val();
+                        persona.numero_documento = $('#txtnumerodocumento').val();
+                        persona.primer_nombre = $('#txtprimernombre').val().toUpperCase();
+                        persona.segundo_nombre = $('#txtsegundonombre').val().toUpperCase();
+                        persona.primer_apellido = $('#txtprimerapellido').val().toUpperCase();
+                        persona.segundo_apellido = $('#txtsegundoapellido').val().toUpperCase();
+                        persona.tipo_telefono = $('#cbtipotelefono').val();
+                        persona.numero_telefono = $('#txttelefono').val();
+                        persona.mayoria_edad = $('#ckmayoriaedad').prop('checked');
+                        persona.genero = $("input[name=rbtngenero]:checked").val();
+                        persona.pr_id = obtenerPersonasReSeleccionadas();
+                        persona.estado_activo = true;
+                        $.ajax({
+                            url: '/Persona/ActualizarPersona',
+                            type: 'PUT',
+                            data: persona,
+                            success: function (response) {
+                                if (response.message == 1) {
 
-        
+                                    $.alert({
+                                        title: 'Editado correctamente',
+                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-6x" style="color: #04ff00;"></i><br/><br/><strong>El registro se editó correctamente</strong></div></center>',
+                                        type: 'green',
+                                        typeAnimated: true,
+                                        buttons: {
+                                            tryAgain: {
+                                                text: 'Aceptar',
+                                                btnClass: 'btn-success',
+                                                action: function () {
+                                                }
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    $.alert({
+                                        title: 'Error al editar',
+                                        content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al editar, intente de nuevo</strong></div></center>',
+                                        type: 'red',
+                                        typeAnimated: true,
+                                        buttons: {
+                                            tryAgain: {
+                                                text: 'Intentar de nuevo',
+                                                btnClass: 'btn-danger',
+                                                action: function () {
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                                $('#tblpersonas').DataTable().ajax.reload();
+                                setTimeout(function () {
+                                    $("#cargandomodal").modal("hide");
+                                }, 1000);
+
+                                limpiarModal();
+                                $("#modalprincipal").modal("hide");
+                            },
+                            error: function () {
+
+                            }
+                        });
+                    }
+                },
+                    cancelar: {
+                        text: 'Cancelar',
+                        btnClass: 'btn-dark',
+                        keys: ['enter', 'shift'],
+                        action: function () {
+                        }
+                    }  
+            }
+        });
     }
 }
-function advertenciaGuardar() {
-    //Confirmacion de guardado espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('guardadomodal', 'show');
-        $('#btnconfirmacionguardadomodal').one('click', function () {
-            resolve(true);
-            showHideModal('guardadomodal', 'hide');
-
-        });
-        $('#btncancelarguardadomodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btnguardadomodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
-function advertenciaEditar() {
-    //Confirmacion de edicion espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('edicionmodal', 'show');
-        $('#btnconfirmacionedicionmodal').one('click', function () {
-            resolve(true);
-            showHideModal('edicionmodal', 'hide');
-
-        });
-        $('#btncancelaredicionmodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btnedicionmodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
-
 function editarPersona(id) {
     //Colocar los datos de la persona en el modal
-    showHideModal('cargando-modal', 'show');
+    $("#cargandomodal").modal("show");
     $.ajax({
         url: '/Persona/ObtenerPersonaPorId?id=' + id,
         type: 'GET',
@@ -444,7 +422,6 @@ function editarPersona(id) {
 
             } else {
                 limpiarModal();
-                showHideModal('modalprincipal', 'show');
                 $('#lblmodalprincipal').text('Editar persona');
                 $('#txtpersonaid').val(persona.persona_id);
                 $('#cbtipodocumento').val(persona.tipo_documento);
@@ -460,61 +437,91 @@ function editarPersona(id) {
                 marcarPersonasReSeleccionadas(persona.pr_id);
 
             }
+
         },
         error: function () {
 
         }
     });
-    showHideModal('cargando-modal', 'hide');
+    setTimeout(function () {
+        $("#cargandomodal").modal("hide");
+        $("#modalprincipal").modal("show");
+    }, 1000);
 }
 function eliminarPersona(id, nombreCompleto) {
-    advertenciaEliminar(nombreCompleto).then((confirmado) => {
-        if (confirmado) {
-            showHideModal('cargando-modal', 'show');
-            $.ajax({
-                url: '/Persona/EliminarPersona?id=' + id,
-                type: 'DELETE',
-                dataType: 'json',
-                contentType: 'application/json;charset=utf-8',
-                success: function (response) {
-                    if (response.message == 1) {
-                        showHideModal('cargando-modal', 'hide');
-                        mostrarModalOperacion('exito-modal');
-                    } else {
-                        showHideModal('cargando-modal', 'hide');
-                        mostrarModalOperacion('error-modal');
-                    }
-                    obtenerPersonas();
-                },
-                error: function () {
+    
+    $.confirm({
+        title: 'Esta seguro que quiere eliminar la persona?',
+        content: '<br/><div class="text-center"><i class="fa-solid fa-trash fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>'+nombreCompleto+'</strong></div><br/>',
+        buttons: {
+            confirmar: {
+                text: 'Confirmar',
+                btnClass: 'btn-red',
+                keys: ['enter', 'shift'],
+                action: function () {
+                    $("#cargandomodal").modal("show");
+                    $.ajax({
+                        url: '/Persona/EliminarPersona?id=' + id,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        contentType: 'application/json;charset=utf-8',
+                        success: function (response) {
+                            if (response.message == 1) {
+                                $.alert({
+                                    title: 'Editado correctamente',
+                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-4x" style="color: #04ff00;"></i><br/><br/><strong>El registro se eliminó correctamente</strong></div></center>',
+                                    type: 'green',
+                                    typeAnimated: true,
+                                    buttons: {
+                                        tryAgain: {
+                                            text: 'Aceptar',
+                                            btnClass: 'btn-success',
+                                            action: function () {
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                $.alert({
+                                    title: 'Error al eliminar',
+                                    content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-exclamation fa-shake fa-6x" style="color: #ff0000;"></i><br/><strong>Hubo un error al eliminar, intente de nuevo</strong></div></center>',
+                                    type: 'red',
+                                    typeAnimated: true,
+                                    buttons: {
+                                        tryAgain: {
+                                            text: 'Intentar de nuevo',
+                                            btnClass: 'btn-danger',
+                                            action: function () {
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                            $('#tblpersonas').DataTable().ajax.reload();
+                            setTimeout(function () {
+                                $("#cargandomodal").modal("hide");
+                            }, 1000);
+                        },
+                        error: function () {
 
+                        }
+                    });
                 }
-            });
-
+            },
+            cancelar: {
+                text: 'Cancelar',
+                btnClass: 'btn-dark',
+                keys: ['enter', 'shift'],
+                action: function () {
+                }
+            }
         }
     });
+
+
+
+
 }
-
-function advertenciaEliminar(nombreCompleto) {
-    //Confirmacion de eliminacion espera que el usuario confirme o cancele
-    return new Promise((resolve) => {
-        showHideModal('eliminarmodal', 'show');
-        $('#lblnombrepersonaeliminar').text(nombreCompleto);
-        $('#btnconfirmacioneliminarmodal').one('click', function () {
-            resolve(true);
-            showHideModal('eliminarmodal', 'hide');
-        });
-
-        $('#btncancelareliminarmodal').one('click', function () {
-            resolve(false);
-        });
-        $('#btneliminarmodal').one('click', function () {
-            resolve(false);
-        });
-    });
-}
-
-
 function limpiarModal() {
     $('#txtpersonaid').val('');
     $('#cbtipodocumento').val('');
@@ -528,28 +535,10 @@ function limpiarModal() {
     $('#ckmayoriaedad').prop('checked', false);
     $("input[name=rbtngenero][value='MASCULINO']").prop('checked', true);
 }
-function mostrarModalOperacion(nombremodal) {
-    showHideModal(nombremodal, 'show');
-
-    const cerrarModalPromise = new Promise((resolve) => {
-        $('#' + nombremodal +'aceptarbtn').on('click', function () {
-            resolve('button');
-        });
-
-        setTimeout(() => {
-            resolve('timeout');
-        }, 3000);
-    });
-    cerrarModalPromise.then(() => {
-        showHideModal(nombremodal, 'hide');
-    });
-}
-
-
 function cargarListaPersonasRelacionadas() {
     $.get('/PersonaRelacionada/ObtenerPersonasRelacionadas', function (personasr) {
-        var listaRoles = $('#listapersonasrelacionadas');
-        listaRoles.empty();
+        var listaPerR = $('#listapersonasrelacionadas');
+        listaPerR.empty();
         $.each(personasr, function (index, personarr) {
             var nombreCompleto = personarr.primer_nombre + ' ';
             nombreCompleto += (personarr.segundo_nombre != null) ? personarr.segundo_nombre + ' ' : ' ';
@@ -573,7 +562,7 @@ function cargarListaPersonasRelacionadas() {
             div.append(checkbox);
             div.append(label);
             li.append(div);
-            listaRoles.append(li);
+            listaPerR.append(li);
         });
     });
 

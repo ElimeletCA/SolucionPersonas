@@ -76,6 +76,7 @@ namespace MantenimientoPersonas.Controllers
         [HttpPost]
         public JsonResult AgregarPersona(PersonaModel persona)
         {
+            
             if (ModelState.IsValid)
             {
                 _context.Personas.Add(persona);
@@ -97,6 +98,8 @@ namespace MantenimientoPersonas.Controllers
             {
                 return Json(new { success = false, message = 0 });
             }
+
+
 
         }
         [HttpPut]

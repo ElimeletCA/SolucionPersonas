@@ -43,8 +43,8 @@
     <None Include="wwwroot\lib\bootstrap-5.2.3-dist\js\bootstrap.js.map" />
     <None Include="wwwroot\lib\bootstrap-5.2.3-dist\js\bootstrap.min.js" />
     <None Include="wwwroot\lib\bootstrap-5.2.3-dist\js\bootstrap.min.js.map" />
-    <None Include="wwwroot\lib\DataTables\datatables.js" />
-    <None Include="wwwroot\lib\DataTables\datatables.min.js" />
+    <None Include="wwwroot\lib\datatables\datatables.js" />
+    <None Include="wwwroot\lib\datatables\datatables.min.js" />
     <None Include="wwwroot\lib\moment\moment.js" />
   </ItemGroup>
 

@@ -20,7 +20,8 @@ namespace MantenimientoPersonas.Controllers
         public JsonResult ObtenerPersonaRelacionadaPorId(int id)
         {
             try {
-                var personarelacionada = _context.PersonasRelacionadas.Find(id);
+                var personarelacionada = _context.PersonasRelacionadas
+                    .Find(id);
 
                 if (personarelacionada != null)
                 {

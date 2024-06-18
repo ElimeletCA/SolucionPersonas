@@ -16,10 +16,61 @@ html {
 body {
   margin-bottom: 60px;
 }
-th {
-    white-space: nowrap;
-}
+
 .scrollable-div {
     height: 200px;
     overflow-y: auto;
 }
+.scrollable-div-r {
+    height: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+    border: none;
+}
+table.dataTable, table.dataTable th, table.dataTable td {
+    border: 1px solid #000;
+}
+
+table.dataTable {
+    border-collapse: collapse;
+    width: 100%;
+
+}
+
+    table.dataTable th, table.dataTable td {
+        padding: 8px;
+        text-align: left;
+    }
+table.dataTable {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+    table.dataTable th, table.dataTable td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+.dataTables_scrollHeadInner {
+    width: 100% !important;
+}
+
+    .dataTables_scrollHeadInner table {
+        width: 100% !important;
+    }
+
+table.dataTable.stripe tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+.scroll-cell {
+    height: 55px;
+    max-height: 55px;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    display: block;
+}
+
