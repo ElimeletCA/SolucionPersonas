@@ -16,3 +16,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+th {
+    white-space: nowrap;
+}
+.scrollable-div {
+    height: 200px;
+    overflow-y: auto;
+}
