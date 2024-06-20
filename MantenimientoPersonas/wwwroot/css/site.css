@@ -74,3 +74,6 @@ table.dataTable.stripe tbody tr:nth-of-type(odd) {
     display: block;
 }
 
+.swal2-container{
+    backdrop-filter: blur(10px);
+}

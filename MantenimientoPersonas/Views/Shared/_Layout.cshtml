@@ -9,8 +9,7 @@
     <link href="~/lib/bootstrap-5.2.3-dist/css/bootstrap.css" rel="stylesheet" />
     <link href="~/lib/select2/select2.css" rel="stylesheet" />
     <link href="~/lib/select2/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-
-
+    <link href="~/lib/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
     <link href="~/lib/datatables/datatables.css" rel="stylesheet" asp-append-version="true" />
     <link href="~/lib/jquery-confirm/css/jquery-confirm.css" rel="stylesheet" asp-append-version="true" />
 </head>
@@ -40,29 +39,14 @@
             <br />
             @RenderBody()
         </main>
-        <!--Modal Cargando-->
-        <div class="modal fade" id="cargandomodal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div   class="modal-dialog modal-dialog-centered modal-sm">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div class="d-flex justify-content-center">
-                            <br />
-                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"
-                                 role="status">
-                                <span class="visually-hidden">Cargando...</span>
-                            </div>
-                            <br/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+
     <footer class="fixed bottom-0 left-0 z-20 w-full p-4 bg-white border-t border-gray-200 shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800 dark:border-gray-600">
         <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">
             © 2024 - Mantenimiento de Personas - Elimelet Caraballo
         </span>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap-5.2.3-dist/js/bootstrap.bundle.js"></script>
     <script src="~/lib/select2/select2.full.js"></script>
@@ -75,6 +59,7 @@
     <script src="~/lib/datatables/datatables.js" asp-append-version="true"></script>
     <script src="~/lib/jquery-confirm/js/jquery-confirm.js" asp-append-version="true"></script>
     <script src="https://kit.fontawesome.com/2d70f210f1.js" crossorigin="anonymous"></script>
+    <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

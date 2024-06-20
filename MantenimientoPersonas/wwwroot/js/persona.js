@@ -1,10 +1,5 @@
 ﻿$(document).ready(function () {
-    $("#cargandomodal").modal("show");
 
-
-    obtenerPersonas();
-    cargarListaPersonasRelacionadas();
-    
     $('head').append('<style>.error-text { display: none; }</style>');
     $('#cuerpoModalPrincipal').on('keypress', function (event) {
         if (event.keyCode === 13) {
@@ -106,16 +101,19 @@
         cargarListaPersonasRelacionadas();
         editarPersona($('#txtpersonaid').val());
     })
-    setTimeout(function () {
-        $("#cargandomodal").modal("hide");
-    }, 2000);
+    obtenerPersonas();
+    cargarListaPersonasRelacionadas();
 });
-function abrirMantenimientoPersonasRe(){
+
+function abrirMantenimientoPersonasRe() {
     $('#cuerpomodalmostrarpersonasrelacionadas').load('/PersonaRelacionada/PersonasRelacionadasPartial');
     $("#modalmostrarpersonasrelacionadas").modal("show");
 
 }
 function obtenerPersonas() {
+
+    Swal.fire(cargandomodal);
+
     $('#tblpersonas').DataTable({
         layout: {
             topStart: {
@@ -143,7 +141,7 @@ function obtenerPersonas() {
                     $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Personas no disponibles</td></tr>');
                     return [];
                 }
-
+                Swal.close(cargandomodal);
                 return response;
 
             }
@@ -182,10 +180,11 @@ function obtenerPersonas() {
             }
         ]
     });
+
 }
 function agregarPersona() {
     //$('#tblpersonas').DataTable().ajax.reload();
-    //    $("#cargandomodal").modal("show");
+    //    Swal.fire(cargandomodal);
     $('#lblmodalprincipal').text('Agregar nueva persona');
     limpiarModal();
     $("#modalprincipal").modal("show");
@@ -215,7 +214,8 @@ function guardarPersona() {
                     btnClass: 'btn-green',
                     keys: ['enter', 'shift'],
                     action: function () {
-                        $("#cargandomodal").modal("show");
+                        
+                        Swal.fire(cargandomodal);
                         //Agregar nueva persona
                         var persona = new Object();
                         persona.tipo_documento = $('#cbtipodocumento').val();
@@ -255,9 +255,8 @@ function guardarPersona() {
                                             }
                                         }
                                     });
-                                    setTimeout(function () {
-                                        $("#cargandomodal").modal("hide");
-                                    }, 1000);
+                                    Swal.close(cargandomodal);
+
 
                                 } else {
                                     $.ajax({
@@ -301,12 +300,12 @@ function guardarPersona() {
                                                 });
                                             }
                                             $('#tblpersonas').DataTable().ajax.reload();
-                                            setTimeout(function () {
-                                                $("#cargandomodal").modal("hide");
-                                            }, 1000);
+
 
                                             limpiarModal();
                                             $("#modalprincipal").modal("hide");
+                                            Swal.close(cargandomodal);
+
                                         },
                                         error: function () {
                                         }
@@ -335,7 +334,7 @@ function guardarPersona() {
                     btnClass: 'btn-green',
                     keys: ['enter', 'shift'],
                     action: function () {
-                        $("#cargandomodal").modal("show");
+                        Swal.fire(cargandomodal);
                         //Actualizar datos de persona
                         var persona = new Object();
                         persona.persona_id = $('#txtpersonaid').val();
@@ -391,12 +390,11 @@ function guardarPersona() {
                                     });
                                 }
                                 $('#tblpersonas').DataTable().ajax.reload();
-                                setTimeout(function () {
-                                    $("#cargandomodal").modal("hide");
-                                }, 1000);
 
                                 limpiarModal();
                                 $("#modalprincipal").modal("hide");
+                                Swal.close(cargandomodal);
+
                             },
                             error: function () {
 
@@ -417,7 +415,7 @@ function guardarPersona() {
 }
 function editarPersona(id) {
     //Colocar los datos de la persona en el modal
-    $("#cargandomodal").modal("show");
+    Swal.fire(cargandomodal);
     $.ajax({
         url: '/Persona/ObtenerPersonaPorId?id=' + id,
         type: 'GET',
@@ -425,6 +423,7 @@ function editarPersona(id) {
         contentType: 'application/json;charset=utf-8',
         success: function (persona) {
             if (persona == null || persona == undefined || persona.length == 0) {
+                Swal.close(cargandomodal);
 
             } else {
                 limpiarModal();
@@ -441,6 +440,8 @@ function editarPersona(id) {
                 $('#ckmayoriaedad').prop('checked', persona.mayoria_edad);
                 $("input[name=rbtngenero][value='" + persona.genero + "']").prop('checked', true);
                 marcarPersonasReSeleccionadas(persona.pr_id);
+                $("#modalprincipal").modal("show");
+                Swal.close(cargandomodal);
 
             }
 
@@ -449,10 +450,7 @@ function editarPersona(id) {
 
         }
     });
-    setTimeout(function () {
-        $("#cargandomodal").modal("hide");
-        $("#modalprincipal").modal("show");
-    }, 1000);
+
 }
 function eliminarPersona(id, nombreCompleto) {
     
@@ -465,7 +463,7 @@ function eliminarPersona(id, nombreCompleto) {
                 btnClass: 'btn-red',
                 keys: ['enter', 'shift'],
                 action: function () {
-                    $("#cargandomodal").modal("show");
+                    Swal.fire(cargandomodal);
                     $.ajax({
                         url: '/Persona/EliminarPersona?id=' + id,
                         type: 'DELETE',
@@ -474,7 +472,7 @@ function eliminarPersona(id, nombreCompleto) {
                         success: function (response) {
                             if (response.message == 1) {
                                 $.alert({
-                                    title: 'Editado correctamente',
+                                    title: 'Eliminado correctamente',
                                     content: '<center><br/><div class="text-center"><br/><div class="text-center"><i class="fa-solid fa-circle-check fa-beat fa-4x" style="color: #04ff00;"></i><br/><br/><strong>El registro se eliminó correctamente</strong></div></center>',
                                     autoClose: 'tryAgain|3000',
 
@@ -508,9 +506,8 @@ function eliminarPersona(id, nombreCompleto) {
                                 });
                             }
                             $('#tblpersonas').DataTable().ajax.reload();
-                            setTimeout(function () {
-                                $("#cargandomodal").modal("hide");
-                            }, 1000);
+                            Swal.close(cargandomodal);
+
                         },
                         error: function () {
 
