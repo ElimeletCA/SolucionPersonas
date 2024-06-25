@@ -269,107 +269,138 @@ function agregarPersonaRelacionada()
 
 function obtenerPersonasRelacionadas() {
     Swal.fire(cargandomodal);
+    $.ajax({
+        url: "/PersonaRelacionada/ObtenerPersonasRelacionadas",
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: function (response) {
+            var buttons = [];
 
-    $('#tblpersonasr').DataTable({
-        layout: {
-            topStart: {
-                buttons: [
+            if (response.puedeCrear) {
+                buttons.push({
+                    text: 'Agregar nueva persona relacionada',
+                    className: '',
+                    action: function (e, dt, node, config) {
+                        agregarPersonaRelacionada();
+                    }
+                });
+            }
+
+            $('#tblpersonasr').DataTable({
+                dom: 'Bfrtip',
+                buttons: buttons,
+                paging: false,
+                scrollCollapse: true,
+                scrollY: '350px',
+                ajax: {
+                    url: "/PersonaRelacionada/ObtenerPersonasRelacionadas",
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: 'application/json;charset=utf-8',
+                    dataSrc: function (response) {
+                        if (!response.personasRelacionadas || response.personasRelacionadas.length === 0) {
+                            $('#tblpersonasrbody').html('<tr class="whitespace-nowrap"><td colspan="9">Personas relacionadas no disponibles</td></tr>');
+                            Swal.close(cargandomodal);
+                            return [];
+                        }
+                        Swal.close(cargandomodal);
+                        return response.personasRelacionadas.map(personarelacionada => ({
+                            ...personarelacionada,
+                            puedeEditar: response.puedeEditar,
+                            puedeEliminar: response.puedeEliminar
+                        }));
+                    },
+                    error: function (xhr, error, thrown) {
+                        $('#tblpersonasrbody').html('<tr class="whitespace-nowrap"><td colspan="9">Error al cargar los datos</td></tr>');
+                        Swal.close(cargandomodal);
+                    }
+                },
+                initComplete: function (settings, json) {
+                    Swal.close(cargandomodal);
+                },
+                columns: [
+                    { "data": "numero_documento" },
+                    { "data": "primer_nombre" },
                     {
-                        text: 'Agregar nueva persona relacionada',
-                        className: '',
-                        action: function (e, dt, node, config) {
-                            agregarPersonaRelacionada();
+                        "data": "segundo_nombre",
+                        "render": function (data, type, row) {
+                            return data != null ? data : '';
+                        }
+                    },
+                    { "data": "primer_apellido" },
+                    {
+                        "data": "segundo_apellido",
+                        "render": function (data, type, row) {
+                            return data != null ? data : '';
+                        }
+                    },
+                    {
+                        "data": "fecha_nacimiento",
+                        "render": function (data, type, row) {
+                            return data ? moment(data).format('DD/MM/YYYY') : '';
+                        }
+                    },
+                    {
+                        "data": "roles",
+                        "className": "scroll-cell",
+                        "render": function (data, type, row) {
+                            return data.map(function (rol) { return rol.nombre_rol; }).join('<br/>');
+                        }
+                    },
+                    { "data": "correo_electronico" },
+                    { "data": "numero_telefono_principal" },
+                    { "data": "tipo_pago" },
+                    { "data": "numero_cuenta" },
+                    {
+                        "data": "nombre_entidad_bancaria",
+                        "render": function (data, type, row) {
+                            return data ? data + '&nbsp;' : '';
+                        }
+                    },
+                    {
+                        "data": "nombre_pais",
+                        "render": function (data, type, row) {
+                            return data ? data + '&nbsp;' : '';
+                        }
+                    },
+                    {
+                        "data": "nombre_provincia",
+                        "render": function (data, type, row) {
+                            return data ? data + '&nbsp;' : '';
+                        }
+                    },
+                    {
+                        "data": "nombre_ciudad",
+                        "render": function (data, type, row) {
+                            return data ? data + '&nbsp;' : '';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
+                            var botones = '';
+
+                            if (row.puedeEditar) {
+                                botones += '<button type="button" onclick="editarPersonaRelacionada(' + row.persona_relacionada_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;';
+                            }
+
+                            if (row.puedeEliminar) {
+                                botones += '<button type="button" onclick="eliminarPersonaRelacionada(' + row.persona_relacionada_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
+                            }
+
+                            return botones;
                         }
                     }
                 ]
-            }
+            });
         },
-        paging: false,
-        scrollCollapse: true,
-        scrollY: '350px',
-        "ajax": {
-            "url": "/PersonaRelacionada/ObtenerPersonasRelacionadas",
-            "type": "GET",
-            "dataType": "json",
-            "contentType": "application/json;charset=utf-8",
-            "dataSrc": function (response) {
-                if (!response || response.length === 0) {
-                    $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="16">Personas no disponibles</td></tr>');
-                    return [];
-                }
-                Swal.close(cargandomodal);
-
-                return response;
-            }
-        },
-        "columns": [
-            { "data": "numero_documento" },
-            { "data": "primer_nombre" },
-            {
-                "data": "segundo_nombre",
-                "render": function (data, type, row) {
-                    return data != null ? data : '';
-                }
-            },
-            { "data": "primer_apellido" },
-            {
-                "data": "segundo_apellido",
-                "render": function (data, type, row) {
-                    return data != null ? data : '';
-                }
-            },
-            {
-                "data": "fecha_nacimiento",
-                "render": function (data, type, row) {
-                    return data ? moment(data).format('DD/MM/YYYY') : '';
-                }
-            },
-            {
-                "data": "roles",
-                "className": "scroll-cell",
-                "render": function (data, type, row) {
-                    return data.map(function (rol) { return rol.nombre_rol; }).join('<br/>');
-                }
-            },
-            { "data": "correo_electronico" },
-            { "data": "numero_telefono_principal" },
-            { "data": "tipo_pago" },
-            { "data": "numero_cuenta" },
-            {
-                "data": "nombre_entidad_bancaria",
-                "render": function (data, type, row) {
-                    return data ? data + '&nbsp;' : '';
-                }
-            },
-            {
-                "data": "nombre_pais",
-                "render": function (data, type, row) {
-                    return data ? data + '&nbsp;' : '';
-                }
-            },
-            {
-                "data": "nombre_provincia",
-                "render": function (data, type, row) {
-                    return data ? data + '&nbsp;' : '';
-                }
-            },
-            {
-                "data": "nombre_ciudad",
-                "render": function (data, type, row) {
-                    return data ? data + '&nbsp;' : '';
-                }
-            },
-            {
-                "data": null,
-                "render": function (data, type, row) {
-                    var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
-                    return '<button type="button" onclick="editarPersonaRelacionada(' + row.persona_relacionada_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;' +
-                        '<button type="button" onclick="eliminarPersonaRelacionada(' + row.persona_relacionada_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
-                }
-            }
-        ]
+        error: function (xhr, error, thrown) {
+            $('#tblpersonasrbody').html('<tr class="whitespace-nowrap"><td colspan="9">Error al cargar los datos</td></tr>');
+            Swal.close(cargandomodal);
+        }
     });
-
 }
 function limpiarModalPr() {
     $('#txtpersonarid').val('');
@@ -420,7 +451,7 @@ $(document.body).on("change", "#cbentidadbancaria", function () {
 function obtenerIdCiudad(name) {
     return new Promise(function (resolve, reject) {
         $.ajax({
-            url: 'PersonaRelacionada/ObtenerCiudades',
+            url: '/PersonaRelacionada/ObtenerCiudades',
             method: 'GET',
             success: function (data) {
                 var city = data.find(function (city) {

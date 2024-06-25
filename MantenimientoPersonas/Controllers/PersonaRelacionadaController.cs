@@ -1,21 +1,27 @@
 ﻿using MantenimientoPersonas.Data;
 using MantenimientoPersonas.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MantenimientoPersonas.Controllers
 {
+    [Authorize]
+
     public class PersonaRelacionadaController : Controller
     {
         private readonly CRUDContext? _context;
         private static PersonaRelacionadaModel personarelacionadamodel;
         private readonly ILogger<PersonaController> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
-        public PersonaRelacionadaController(CRUDContext context, ILogger<PersonaController> logger)
+        public PersonaRelacionadaController(CRUDContext context, ILogger<PersonaController> logger, IAuthorizationService authorizationService)
         {
             _context = context;
             _logger = logger;
+            _authorizationService = authorizationService;
         }
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public JsonResult ObtenerPersonaRelacionadaPorId(int id)
         {
@@ -44,6 +50,8 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public IActionResult ObtenerLocalidades()
         {
@@ -68,6 +76,8 @@ namespace MantenimientoPersonas.Controllers
 
             return Ok(resultado);
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public IActionResult ObtenerEntidadesBancarias()
         {
@@ -84,6 +94,8 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public IActionResult ObtenerCiudades()
         {
@@ -100,6 +112,8 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public IActionResult ObtenerRoles()
         {
@@ -116,8 +130,9 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
-        [HttpGet]
 
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
+        [HttpGet]
         public JsonResult ObtenerPersonaRelacionadaPorNumeroDocumento(string ndocumento)
         {
             try
@@ -135,47 +150,55 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
-        public JsonResult ObtenerPersonasRelacionadas()
+        public async Task<JsonResult> ObtenerPersonasRelacionadas()
         {
-            try
+            var personasrelacionadas = _context.PersonasRelacionadas
+                .Where(p => p.estado_activo == true)
+                .Include(p => p.entidad_bancaria)
+                .Include(p => p.ciudad)
+                .Select(p => new
+                {
+                    p.persona_relacionada_id,
+                    p.persona_id,
+                    p.ciudad_id,
+                    p.entidad_bancaria_id,
+                    p.tipo_documento,
+                    p.numero_documento,
+                    p.primer_nombre,
+                    p.segundo_nombre,
+                    p.primer_apellido,
+                    p.segundo_apellido,
+                    p.fecha_nacimiento,
+                    p.correo_electronico,
+                    p.tipo_telefono_principal,
+                    p.numero_telefono_principal,
+                    p.tipo_pago,
+                    p.numero_cuenta,
+                    p.estado_activo,
+                    p.roles,
+                    nombre_ciudad = p.ciudad.nombre_ciudad,
+                    nombre_provincia = p.ciudad.provincia.nombre_provincia,
+                    nombre_pais = p.ciudad.provincia.pais.nombre_pais,
+                    nombre_entidad_bancaria = p.entidad_bancaria.nombre_entidad
+                }).ToList();
+            var puedeEditar = (await _authorizationService.AuthorizeAsync(User, "Permisos.PersonasRelacionadas.Editar")).Succeeded;
+            var puedeEliminar = (await _authorizationService.AuthorizeAsync(User, "Permisos.PersonasRelacionadas.Eliminar")).Succeeded;
+            var puedeCrear = (await _authorizationService.AuthorizeAsync(User, "Permisos.PersonasRelacionadas.Crear")).Succeeded;
+            var resultado = new
             {
-                var personasrelacionadas = _context.PersonasRelacionadas
-                    .Where(p => p.estado_activo == true)
-                    .Include(p => p.entidad_bancaria)
-                    .Include(p => p.ciudad)
-                    .Select(p => new
-                    {
-                        p.persona_relacionada_id,
-                        p.persona_id,
-                        p.ciudad_id,
-                        p.entidad_bancaria_id,
-                        p.tipo_documento,
-                        p.numero_documento,
-                        p.primer_nombre,
-                        p.segundo_nombre,
-                        p.primer_apellido,
-                        p.segundo_apellido,
-                        p.fecha_nacimiento,
-                        p.correo_electronico,
-                        p.tipo_telefono_principal,
-                        p.numero_telefono_principal,
-                        p.tipo_pago,
-                        p.numero_cuenta,
-                        p.estado_activo,
-                        p.roles,
-                        nombre_ciudad = p.ciudad.nombre_ciudad,
-                        nombre_provincia = p.ciudad.provincia.nombre_provincia,
-                        nombre_pais = p.ciudad.provincia.pais.nombre_pais,
-                        nombre_entidad_bancaria = p.entidad_bancaria.nombre_entidad
-                    }).ToList();
-                return Json(personasrelacionadas);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+                PersonasRelacionadas = personasrelacionadas,
+                PuedeEditar = puedeEditar,
+                PuedeEliminar = puedeEliminar,
+                PuedeCrear = puedeCrear
+            };
+
+            return Json(resultado);
         }
+
+        [Authorize("Permisos.PersonasRelacionadas.Crear")]
         [HttpPost]
         public JsonResult AgregarPersonaRelacionada(PersonaRelacionadaModel personarelacionada)
         {
@@ -210,7 +233,7 @@ namespace MantenimientoPersonas.Controllers
             }
         }
 
-
+        [Authorize("Permisos.PersonasRelacionadas.Editar")]
         [HttpPut]
         public JsonResult ActualizarPersonaRelacionada(PersonaRelacionadaModel personarelacionada)
         {
@@ -294,6 +317,7 @@ namespace MantenimientoPersonas.Controllers
             }
         }
 
+        [Authorize("Permisos.PersonasRelacionadas.Eliminar")]
         [HttpDelete]
         public JsonResult EliminarPersonaRelacionada(int id)
         {
@@ -309,14 +333,17 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = true, message = 0 });
             }
         }
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         public IActionResult Index()
         {
             return View();
         }
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         public IActionResult PersonasRelacionadasPartial()
         {
             return PartialView("_mantenimientopersonasrelacionadas", personarelacionadamodel);
         }
+        [Authorize("Permisos.PersonasRelacionadas.Ver")]
         [HttpGet]
         public IActionResult ObtenerLocacionPorIdCiudad(int id)
         {

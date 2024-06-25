@@ -1,0 +1,88 @@
+﻿.required-field::after {
+    content: "*";
+    color: red;
+    font-size: 20px;
+}
+.divider:after,
+.divider:before {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+.h-custom {
+    height: calc(100% - 73px);
+}
+
+@media (max-width: 450px) {
+    .h-custom {
+        height: 100%;
+    }
+}
+#imageleft {
+    display: flex;
+    position: relative;
+}
+/* The message box */
+#password-message {
+    display: none;
+    background: #ffffff;
+    color: #000;
+    position: relative;
+    padding: 5px;
+    margin-top: 0px;
+    text-align: left;
+}
+
+#password-message h3 {
+        font-size: 15px;
+        margin-top: 0;
+        text-transform: uppercase;
+    }
+
+#password-message p {
+        margin: 8px 0;
+}
+
+.valid {
+    color: #2bff00;
+}
+
+    .valid:before {
+        position: relative;
+        left: 0px;
+        font-family: 'Font Awesome\ 5 Free';
+        content: "\f058";
+        color: #2bff00;
+        font-weight: 900;
+    }
+
+.invalid {
+    color: red;
+}
+
+    .invalid:before {
+        position: relative;
+        left: 0px;
+        font-family: 'Font Awesome\ 5 Free';
+        content: "\f057";
+        color: #ff0000;
+        font-weight: 900;
+    }
+
+/* Error message style */
+.error-msg {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+}
+#btnpassword:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+#btnpassword:hover {
+    background-color: transparent;
+    border-color: transparent;
+}

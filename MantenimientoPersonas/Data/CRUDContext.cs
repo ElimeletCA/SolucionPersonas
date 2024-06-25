@@ -1,4 +1,5 @@
 ﻿using MantenimientoPersonas.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -7,7 +8,7 @@ using System.Reflection.Emit;
 
 namespace MantenimientoPersonas.Data
 {
-    public class CRUDContext : DbContext
+    public class CRUDContext : IdentityDbContext<UserModel>
     {
         public CRUDContext(DbContextOptions<CRUDContext> options) : base(options)
         {
@@ -91,6 +92,7 @@ namespace MantenimientoPersonas.Data
                    .UsingEntity(join => join.ToTable("PersonaRelacionadaRol"));
 
             /*************************************/
+
             var listaroles = new RolModel[]
             {
                 new RolModel {rol_id=1, nombre_rol = "Propietario", descripcion_rol="Propietario"},
@@ -139,6 +141,7 @@ namespace MantenimientoPersonas.Data
             modelbuilder.Entity<PaisModel>().HasData(listapaises);
             modelbuilder.Entity<ProvinciaModel>().HasData(listaprovincias);
             modelbuilder.Entity<CiudadModel>().HasData(listaciudades);
+
 
             base.OnModelCreating(modelbuilder);
 

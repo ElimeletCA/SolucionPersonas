@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@inject IAuthorizationService AuthorizationService
+@{
+    ViewData["Title"] = "Inicio";
+}
+@{
+    string userName = "Invitado";
+
+    if (User.Identity.IsAuthenticated)
+    {
+        // Busca el claim con el tipo "name"
+        var nameClaim = User.Claims.FirstOrDefault(c => c.Type == "name");
+        if (nameClaim != null)
+        {
+            userName = nameClaim.Value;
+        }
+    }
+
+    ViewData["TitleView"] = "Bienvenido al sistema " + userName;
+}
+
+
+@section Scripts {
+}
+

@@ -1,0 +1,7 @@
+﻿.scrollable-div-r {
+    height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+    border: none;
+}

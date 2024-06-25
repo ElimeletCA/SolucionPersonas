@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using MantenimientoPersonas.Constants
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -18,17 +21,40 @@
         <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
             <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <img src="~/resources/images/logodotnet.png" width="40" height="40" class="bi  me-2" />
-                <span class="fs-4">ASP.NET Core MVC + jQuery</span>
+                <span class="fs-4">ASP.NET Core MVC</span>
             </a>
 
             <ul class="nav nav-pills">
                 <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Inicio</a></li>
-                <li class="nav-item">
-                    <a asp-controller="Persona" asp-action="Index" class="nav-link" aria-current="page">Personas</a>
-                </li>
-                <li class="nav-item">
-                    <a asp-controller="PersonaRelacionada" asp-action="Index" class="nav-link" aria-current="page">Personas Relacionadas</a>
-                </li>
+                @if ((AuthorizationService.AuthorizeAsync(User, Permisos.Personas.Ver)).Result.Succeeded)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Persona" asp-action="Index" class="nav-link" aria-current="page">Personas</a>
+                    </li>
+                }
+                @if ((AuthorizationService.AuthorizeAsync(User, Permisos.PersonasRelacionadas.Ver)).Result.Succeeded)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="PersonaRelacionada" asp-action="Index" class="nav-link" aria-current="page">Personas Relacionadas</a>
+                    </li>
+                }
+
+                @if ((AuthorizationService.AuthorizeAsync(User, Permisos.Usuarios.Ver)).Result.Succeeded)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="User" asp-action="Index" class="nav-link" aria-current="page">Usuarios</a>
+                    </li>
+
+                }
+                @if ((AuthorizationService.AuthorizeAsync(User, Permisos.Roles.Ver)).Result.Succeeded)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Rol" asp-action="Index" class="nav-link" aria-current="page">Roles</a>
+                    </li>
+                }
+                &nbsp;
+                <li class="nav-item"><a onclick="cerrarSesion();" type="button" class="nav-link" aria-current="page">Cerrar sesión</a></li>
+
             </ul>
         </header>
     </div>
@@ -53,7 +79,7 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
     <script src="~/lib/jquery-validation/dist/additional-methods.min.js" asp-append-version="true"></script>
 
-<script src="~/lib/input-mask/jquery.inputmask.min.js" asp-append-version="true"></script>
+    <script src="~/lib/input-mask/jquery.inputmask.min.js" asp-append-version="true"></script>
     <script src="~/lib/moment/moment.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/datatables/datatables.js" asp-append-version="true"></script>

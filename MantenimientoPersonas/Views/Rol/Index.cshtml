@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model IEnumerable<IdentityRole>
+<h1>Roles</h1>
+<br />
+<form method="post" asp-action="AgregarRol" asp-controller="Rol">
+    <div class="input-group">
+        <input name="nombreRol" class="form-control w-25">
+        &nbsp;
+        <span class="input-group-btn">
+            <button class="btn btn-primary">Agregar nuevo rol</button>
+        </span>
+    </div>
+</form>
+<table class="table table-striped" id="roleTable">
+    <thead>
+        <tr>
+            <th>
+                Rol
+            </th>
+            <th>
+                Id
+            </th>
+            <th style="width:10%">
+                Acciones
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var role in Model)
+        {
+            <tr>
+                <td>
+                    @role.Name
+                </td>
+                <td>
+                    @role.Id
+                </td>
+                <td class="text-right">
+                    @if (role.Name != "Administrador")
+                    {
+
+                    <div class="btn-group">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Acción
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                        <form asp-action="EliminarRol" asp-controller="Rol" method="post">
+                                            <input type="hidden" name="rolId" value="@role.Id" />
+                                            <button type="submit" class="dropdown-item"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                                        </form>
+
+                                </li>
+                                <li>
+                                        <a style='margin-right:16px' asp-controller="Permiso" asp-action="Index" asp-route-roleId="@role.Id" class="dropdown-item">
+                                            <i class="fas fa-wrench"></i> Administrar permisos
+                                        </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

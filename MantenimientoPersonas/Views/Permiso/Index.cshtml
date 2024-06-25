@@ -1,0 +1,64 @@
+﻿@model MantenimientoPersonas.Models.PermisoViewModel
+<h1>Permisos</h1>
+<br />
+<style>
+    .scrollable-div-p {
+        height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        white-space: nowrap;
+        border: none;
+    }
+</style>
+<div class="">
+        <form asp-controller="Permiso" method="post" asp-action="Update" class="d-inline">
+        <div id="viewAll" class="card-body table-responsive scrollable-div-p">
+
+            <input asp-for="@Model.RoleId" type="hidden" />
+            
+            <table class="table table-striped " id="permissionTable">
+                <thead>
+                    <tr>
+                        <th>
+                            Tipo
+                        </th>
+                        <th>
+                            Permiso
+                        </th>
+                        <th>
+                            Estatus
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.RoleClaims.Count(); i++)
+                    {
+                        <tr>
+                            <td>
+                                <input asp-for="@Model.RoleClaims[i].Type" type="hidden" />
+                                @Model.RoleClaims[i].Type
+                            </td>
+                            <td>
+                                <input asp-for="@Model.RoleClaims[i].Value" type="hidden" />
+                                @Model.RoleClaims[i].Value
+                            </td>
+                            <td>
+                                <div class="form-check m-1">
+                                    <input asp-for="@Model.RoleClaims[i].Selected" class="form-check-input" />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-sm-12" style="padding: 20px 20px 0px 0px">
+            <button type="submit" id="save" class="btn btn-primary">
+                <i class="fa fa-check"></i>
+                Guardar
+            </button>
+        </div>
+        </form>
+
+</div>

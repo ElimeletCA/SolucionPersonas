@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿
+$(document).ready(function () {
 
     $('head').append('<style>.error-text { display: none; }</style>');
     $('#cuerpoModalPrincipal').on('keypress', function (event) {
@@ -103,6 +104,7 @@
     })
     obtenerPersonas();
     cargarListaPersonasRelacionadas();
+
 });
 
 function abrirMantenimientoPersonasRe() {
@@ -113,73 +115,106 @@ function abrirMantenimientoPersonasRe() {
 function obtenerPersonas() {
 
     Swal.fire(cargandomodal);
+    $.ajax({
+        url: '/Persona/ObtenerPersonas',
+        type: 'GET',
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: function (response) {
+            var buttons = [];
 
-    $('#tblpersonas').DataTable({
-        layout: {
-            topStart: {
-                buttons: [
+            if (response.puedeCrear) {
+                buttons.push({
+                    text: 'Agregar nueva persona',
+                    className: '',
+                    action: function (e, dt, node, config) {
+                        agregarPersona();
+                    }
+                });
+            }
+
+            $('#tblpersonas').DataTable({
+                dom: 'Bfrtip',
+                buttons: buttons,
+                paging: false,
+                scrollCollapse: true,
+                scrollY: '350px',
+                ajax: {
+                    url: '/Persona/ObtenerPersonas',
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: 'application/json;charset=utf-8',
+                    dataSrc: function (response) {
+                        if (!response.personas || response.personas.length === 0) {
+                            $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Personas no disponibles</td></tr>');
+                            Swal.close(cargandomodal);
+                            return [];
+                        }
+                        Swal.close(cargandomodal);
+                        return response.personas.map(persona => ({
+                            ...persona,
+                            puedeEditar: response.puedeEditar,
+                            puedeEliminar: response.puedeEliminar
+                        }));
+                    },
+                    error: function (xhr, error, thrown) {
+                        $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Error al cargar los datos</td></tr>');
+                        Swal.close(cargandomodal);
+                    }
+                },
+                initComplete: function (settings, json) {
+                    Swal.close(cargandomodal);
+                },
+                columns: [
+                    { data: 'numero_documento' },
+                    { data: 'primer_nombre' },
                     {
-                        text: 'Agregar nueva persona',
-                        className: '',
-                        action: function (e, dt, node, config) {
-                            agregarPersona();
+                        data: 'segundo_nombre',
+                        render: function (data, type, row) {
+                            return data != null ? data : '';
+                        }
+                    },
+                    { data: 'primer_apellido' },
+                    {
+                        data: 'segundo_apellido',
+                        render: function (data, type, row) {
+                            return data != null ? data : '';
+                        }
+                    },
+                    { data: 'genero' },
+                    {
+                        data: 'mayoria_edad',
+                        render: function (data, type, row) {
+                            return data ? 'SI' : 'NO';
+                        }
+                    },
+                    { data: 'numero_telefono' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
+                            var botones = '';
+
+                            if (row.puedeEditar) {
+                                botones += '<button type="button" onclick="editarPersona(' + row.persona_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;';
+                            }
+
+                            if (row.puedeEliminar) {
+                                botones += '<button type="button" onclick="eliminarPersona(' + row.persona_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
+                            }
+
+                            return botones;
                         }
                     }
                 ]
-            }
+            });
         },
-        paging: false,
-        scrollCollapse: true,
-        scrollY: '350px',
-        "ajax": {
-            "url": "/Persona/ObtenerPersonas",
-            "type": "GET",
-            "dataType": "json",
-            "contentType": "application/json;charset=utf-8",
-            "dataSrc": function (response) {
-                if (!response || response.length === 0) {
-                    $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Personas no disponibles</td></tr>');
-                    return [];
-                }
-                Swal.close(cargandomodal);
-                return response;
-
-            }
-        },
-        "columns": [
-            { "data": "numero_documento" },
-            { "data": "primer_nombre" },
-            {
-                "data": "segundo_nombre",
-                "render": function (data, type, row) {
-                    return data != null ? data : '';
-                }
-            },
-            { "data": "primer_apellido" },
-            {
-                "data": "segundo_apellido",
-                "render": function (data, type, row) {
-                    return data != null ? data : '';
-                }
-            },
-            { "data": "genero" },
-            {
-                "data": "mayoria_edad",
-                "render": function (data, type, row) {
-                    return data ? 'SI' : 'NO';
-                }
-            },
-            { "data": "numero_telefono" },
-            {
-                "data": null,
-                "render": function (data, type, row) {
-                    var nombreCompleto = row.primer_nombre + ' ' + (row.segundo_nombre ? row.segundo_nombre + ' ' : '') + row.primer_apellido + ' ' + (row.segundo_apellido ? row.segundo_apellido : '');
-                    return '<button type="button" onclick="editarPersona(' + row.persona_id + ')" class="btn"><i class="fa-solid fa-pencil fa-lg" style="color: #FFD43B;"></i></button>&nbsp;' +
-                        '<button type="button" onclick="eliminarPersona(' + row.persona_id + ', `' + nombreCompleto + '`)" class="btn"><i class="fa-solid fa-trash fa-lg" style="color: #ff0000;"></i></button>&nbsp;';
-                }
-            }
-        ]
+        error: function (xhr, error, thrown) {
+            $('#tblpersonasbody').html('<tr class="whitespace-nowrap"><td colspan="9">Error al cargar los datos</td></tr>');
+            Swal.close(cargandomodal);
+        }
     });
+
 
 }
 function agregarPersona() {
@@ -552,7 +587,7 @@ function cargarListaPersonasRelacionadas() {
     $.get('/PersonaRelacionada/ObtenerPersonasRelacionadas', function (personasr) {
         var listaPerR = $('#listapersonasrelacionadas');
         listaPerR.empty();
-        $.each(personasr, function (index, personarr) {
+        $.each(personasr.personasRelacionadas, function (index, personarr) {
             var nombreCompleto = personarr.primer_nombre + ' ';
             nombreCompleto += (personarr.segundo_nombre != null) ? personarr.segundo_nombre + ' ' : ' ';
             nombreCompleto += personarr.primer_apellido + ' ';

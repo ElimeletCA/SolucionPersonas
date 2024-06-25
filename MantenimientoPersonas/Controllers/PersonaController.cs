@@ -1,27 +1,32 @@
-﻿using MantenimientoPersonas.Data;
+﻿using MantenimientoPersonas.Constants;
+using MantenimientoPersonas.Data;
 using MantenimientoPersonas.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace MantenimientoPersonas.Controllers
 {
+    [Authorize]
     public class PersonaController : Controller
     {
         private readonly CRUDContext? _context;
         private readonly ILogger<PersonaController> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
-
-        public PersonaController(CRUDContext context, ILogger<PersonaController> logger)
+        public PersonaController(CRUDContext context, ILogger<PersonaController> logger, IAuthorizationService authorizationService)
         {
             _context = context;
             _logger = logger;
+            _authorizationService = authorizationService;
         }
-
+        [Authorize("Permisos.Personas.Ver")]
         public IActionResult Index()
         {
             return View();
         }
+        [Authorize("Permisos.Personas.Ver")]
         [HttpGet]
         public JsonResult ObtenerPersonaPorId(int id)
         {
@@ -48,6 +53,8 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [Authorize("Permisos.Personas.Ver")]
+
         [HttpGet]
 
         public JsonResult ObtenerPersonaPorNumeroDocumento(string ndocumento)
@@ -67,12 +74,28 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
         }
+        [Authorize("Permisos.Personas.Ver")]
+
         [HttpGet]
-        public JsonResult ObtenerPersonas()
+        public async Task<JsonResult> ObtenerPersonas()
         {
             var personas = _context.Personas.Where(p => p.estado_activo == true).ToList();
-            return Json(personas);
+            var puedeEditar = (await _authorizationService.AuthorizeAsync(User, "Permisos.Personas.Editar")).Succeeded;
+            var puedeEliminar = (await _authorizationService.AuthorizeAsync(User, "Permisos.Personas.Eliminar")).Succeeded;
+            var puedeCrear = (await _authorizationService.AuthorizeAsync(User, "Permisos.Personas.Crear")).Succeeded;
+
+            var resultado = new
+            {
+                Personas = personas,
+                PuedeEditar = puedeEditar,
+                PuedeEliminar = puedeEliminar,
+                PuedeCrear = puedeCrear
+            };
+
+            return Json(resultado);
         }
+        [Authorize("Permisos.Personas.Crear")]
+
         [HttpPost]
         public JsonResult AgregarPersona(PersonaModel persona)
         {
@@ -102,6 +125,8 @@ namespace MantenimientoPersonas.Controllers
 
 
         }
+        [Authorize("Permisos.Personas.Editar")]
+
         [HttpPut]
         public JsonResult ActualizarPersona(PersonaModel personat)
         {
@@ -208,6 +233,7 @@ namespace MantenimientoPersonas.Controllers
                 return Json(new { success = true, message = 0 });
             }
         }
+        [Authorize("Permisos.Personas.Eliminar")]
 
         [HttpDelete]
         public JsonResult EliminarPersona(int id)
@@ -230,6 +256,5 @@ namespace MantenimientoPersonas.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
     }
 }

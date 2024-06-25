@@ -1,0 +1,77 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model IEnumerable<UserModel>
+<style>
+    .scrollable-div-u {
+        height: 300px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        white-space: nowrap;
+        border: none;
+    }
+</style>
+<h1>Lista de usuarios</h1>
+<br />
+<div class="scrollable-div-u">
+    <table class="table table-striped" id="userTable">
+        <thead>
+            <tr>
+                <th>
+                    Usuario
+                </th>
+                <th>
+                    Correo eletrónico
+                </th>
+                <th style="width:10%">
+                    Acciones
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="row">
+                            <div class="col-sm">
+                                <a>
+                                    @user.UserName
+                                </a>
+                                <br>
+                                <small>
+                                    @user.Id
+                                </small>
+
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a>
+                            @user.Email
+                        </a>
+                    </td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Acción
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form asp-action="EliminarUsuario" asp-controller="User" method="post">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <button type="submit" class="dropdown-item"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <a style='margin-right:16px' asp-controller="UserRoles" asp-action="Index" asp-route-userId="@user.Id" class="dropdown-item">
+                                        <i class="fas fa-wrench"></i> Administrar roles
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
